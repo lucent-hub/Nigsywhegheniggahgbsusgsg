@@ -140,7 +140,7 @@ ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
 local SupportedGames = {
-    {Id = 79546208627805, Name = "v1", Exec = function() loadstring(game:HttpGet("https://files.catbox.moe/g3wosw.txt"))()
+    {Id = 79546208627805, Name = "v1", Exec = function() loadstring(game:HttpGet("https://files.catbox.moe/vgua6a.txt"))()
  end},
     {Id = id, Name = "name", Exec = function() print("Hello Dahood") end},
     {Id = id, Name = "Name", Exec = function() print("Murder Mystery 2 Script") end},
