@@ -4,7 +4,6 @@ ScreenGui.Name = "KeySystem"
 ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
--- MANUAL GRADIENT BACKGROUND (FILL SCREEN)
 local g1 = Instance.new("Frame",ScreenGui); g1.Size = UDim2.new(1,0,0.12,0); g1.Position = UDim2.new(0,0,0,0); g1.BackgroundColor3 = Color3.fromRGB(170,210,255); g1.BorderSizePixel = 0
 local g2 = Instance.new("Frame",ScreenGui); g2.Size = UDim2.new(1,0,0.12,0); g2.Position = UDim2.new(0,0,0.12,0); g2.BackgroundColor3 = Color3.fromRGB(160,200,245); g2.BorderSizePixel = 0
 local g3 = Instance.new("Frame",ScreenGui); g3.Size = UDim2.new(1,0,0.12,0); g3.Position = UDim2.new(0,0,0.24,0); g3.BackgroundColor3 = Color3.fromRGB(150,190,235); g3.BorderSizePixel = 0
@@ -30,7 +29,6 @@ local function addCorner(inst,r)
 end
 addCorner(Frame,15)
 
--- Title
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0.9,0,0,30)
 Title.Position = UDim2.new(0.05,0,0.05,0)
@@ -42,7 +40,6 @@ Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = Frame
 
--- TextBox
 local KeyBox = Instance.new("TextBox")
 KeyBox.Size = UDim2.new(0.9,0,0,40)
 KeyBox.Position = UDim2.new(0.05,0,0.3,0)
@@ -56,7 +53,6 @@ KeyBox.TextXAlignment = Enum.TextXAlignment.Left
 KeyBox.Parent = Frame
 addCorner(KeyBox,8)
 
-
 local EnterBtn = Instance.new("TextButton")
 EnterBtn.Size = UDim2.new(0.42,0,0,40)
 EnterBtn.Position = UDim2.new(0.05,0,0.65,0)
@@ -68,7 +64,6 @@ EnterBtn.TextColor3 = Color3.fromRGB(255,255,255)
 EnterBtn.Parent = Frame
 addCorner(EnterBtn,8)
 
-
 local GetKeyBtn = Instance.new("TextButton")
 GetKeyBtn.Size = UDim2.new(0.42,0,0,40)
 GetKeyBtn.Position = UDim2.new(0.53,0,0.65,0)
@@ -79,28 +74,6 @@ GetKeyBtn.Font = Enum.Font.GothamBold
 GetKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
 GetKeyBtn.Parent = Frame
 addCorner(GetKeyBtn,8)
-
-
-local NoteBG = Instance.new("Frame")
-NoteBG.Size = UDim2.new(0,400,0,80)
-NoteBG.Position = UDim2.new(1,-420,0.5,-40)
-NoteBG.BackgroundColor3 = Color3.fromRGB(220,220,255)
-NoteBG.BackgroundTransparency = 0.3
-NoteBG.BorderSizePixel = 0
-NoteBG.Parent = ScreenGui
-addCorner(NoteBG,10)
-
-local Note = Instance.new("TextLabel")
-Note.Size = UDim2.new(1,0,1,0)
-Note.Position = UDim2.new(0,0,0,0)
-Note.BackgroundTransparency = 1
-Note.Text = "Note: Waiting..."
-Note.TextColor3 = Color3.fromRGB(50,80,150)
-Note.TextScaled = true
-Note.Font = Enum.Font.GothamBold
-Note.TextXAlignment = Enum.TextXAlignment.Right
-Note.Parent = NoteBG
-
 
 local snowflakes = {}
 for i=1,10 do
@@ -117,7 +90,6 @@ spawn(function()
     while ScreenGui.Parent do
         for _,snow in ipairs(snowflakes) do
             local x = math.random()
-            local y = 1
             snow.Position = UDim2.new(x,0,-0.05,0)
             snow:TweenPosition(UDim2.new(x,0,1,0),"Linear","Out",math.random(6,12),true,function()
                 snow.Position = UDim2.new(math.random(),0,-0.05,0)
@@ -149,33 +121,25 @@ local function Notify(msg,color)
     end)
 end
 
--- Logic
 local CorrectKey = "(stars_are-so+C0oL!)"
 
 EnterBtn.MouseButton1Click:Connect(function()
     if KeyBox.Text == CorrectKey then
-        Note.Text = "✅ Correct Key!"
-        Note.TextColor3 = Color3.fromRGB(0,200,0)
         Notify("Access Granted", Color3.fromRGB(0,170,90))
         for i, frame in ipairs(gradients) do
             frame:TweenSize(UDim2.new(1,0,0,0), "Out", "Quad", 0.2, true)
             task.wait(0.1)
         end
         Frame:TweenSize(UDim2.new(0,350,0,0), "Out", "Quad", 0.7, true)
-        NoteBG:TweenSize(UDim2.new(0,400,0,0), "Out", "Quad", 0.7, true)
-        loadstring(game:HttpGet("https://pastebin.com/raw/qBx0i9zj"))()
         task.wait(0.7)
         ScreenGui:Destroy()
+        loadstring(game:HttpGet("https://pastebin.com/raw/qBx0i9zj"))()
     else
-        Note.Text = "❌ Wrong Key!"
-        Note.TextColor3 = Color3.fromRGB(200,0,0)
         Notify("Wrong Key!", Color3.fromRGB(200,0,0))
     end
 end)
 
 GetKeyBtn.MouseButton1Click:Connect(function()
     setclipboard("https://discord.gg/mPMyz3rB2J")
-    Note.Text = "discord copied to get key!"
-    Note.TextColor3 = Color3.fromRGB(0,100,200)
     Notify("Key link copied!", Color3.fromRGB(80,160,230))
 end)
