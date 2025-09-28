@@ -142,6 +142,8 @@ ScreenGui.ResetOnSpawn = false
 local SupportedGames = {
     {Id = 79546208627805, Name = "v1", Exec = function() loadstring(game:HttpGet("https://files.catbox.moe/vgua6a.txt"))()
  end},
+{Id = 4924922222, Name = "v1", Exec = function() loadstring(game:HttpGet("https://files.catbox.moe/z2z5hg.txt"))()
+ end},
     {Id = id, Name = "name", Exec = function() print("Hello Dahood") end},
     {Id = id, Name = "Name", Exec = function() print("Murder Mystery 2 Script") end},
     {Id = if, Name = "name", Exec = function() print("Forsaken Script") end},
