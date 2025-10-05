@@ -1,305 +1,392 @@
-local Player = game.Players.LocalPlayer
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KeySystem"
-ScreenGui.Parent = Player:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
+-- Hardened Low-Power Key System (single-word ids) + ASCII Art "LEAD HUB"
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
-local g1 = Instance.new("Frame",ScreenGui); g1.Size = UDim2.new(1,0,0.12,0); g1.Position = UDim2.new(0,0,0,0); g1.BackgroundColor3 = Color3.fromRGB(170,210,255); g1.BorderSizePixel = 0
-local g2 = Instance.new("Frame",ScreenGui); g2.Size = UDim2.new(1,0,0.12,0); g2.Position = UDim2.new(0,0,0.12,0); g2.BackgroundColor3 = Color3.fromRGB(160,200,245); g2.BorderSizePixel = 0
-local g3 = Instance.new("Frame",ScreenGui); g3.Size = UDim2.new(1,0,0.12,0); g3.Position = UDim2.new(0,0,0.24,0); g3.BackgroundColor3 = Color3.fromRGB(150,190,235); g3.BorderSizePixel = 0
-local g4 = Instance.new("Frame",ScreenGui); g4.Size = UDim2.new(1,0,0.12,0); g4.Position = UDim2.new(0,0,0.36,0); g4.BackgroundColor3 = Color3.fromRGB(140,180,225); g4.BorderSizePixel = 0
-local g5 = Instance.new("Frame",ScreenGui); g5.Size = UDim2.new(1,0,0.12,0); g5.Position = UDim2.new(0,0,0.48,0); g5.BackgroundColor3 = Color3.fromRGB(130,170,215); g5.BorderSizePixel = 0
-local g6 = Instance.new("Frame",ScreenGui); g6.Size = UDim2.new(1,0,0.12,0); g6.Position = UDim2.new(0,0,0.60,0); g6.BackgroundColor3 = Color3.fromRGB(120,160,205); g6.BorderSizePixel = 0
-local g7 = Instance.new("Frame",ScreenGui); g7.Size = UDim2.new(1,0,0.12,0); g7.Position = UDim2.new(0,0,0.72,0); g7.BackgroundColor3 = Color3.fromRGB(110,150,195); g7.BorderSizePixel = 0
-local g8 = Instance.new("Frame",ScreenGui); g8.Size = UDim2.new(1,0,0.12,0); g8.Position = UDim2.new(0,0,0.84,0); g8.BackgroundColor3 = Color3.fromRGB(100,140,185); g8.BorderSizePixel = 0
-local g9 = Instance.new("Frame",ScreenGui); g9.Size = UDim2.new(1,0,0.16,0); g9.Position = UDim2.new(0,0,0.96,0); g9.BackgroundColor3 = Color3.fromRGB(90,130,175); g9.BorderSizePixel = 0
-local gradients = {g1,g2,g3,g4,g5,g6,g7,g8,g9}
+-- single-word main gui
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "KeySystem"
+Gui.Parent = PlayerGui
+Gui.ResetOnSpawn = false
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0,350,0,260)
-Frame.Position = UDim2.new(0,20,0.5,-130)
-Frame.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Frame.BackgroundTransparency = 0.15
-Frame.BorderSizePixel = 0
-Frame.Parent = ScreenGui
-local function addCorner(inst,r)
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0,r)
-    c.Parent = inst
-end
-addCorner(Frame,15)
-
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(0.9,0,0,30)
-Title.Position = UDim2.new(0.05,0,0.05,0)
-Title.BackgroundTransparency = 1
-Title.Text = "Lead Hub | V1.1"
-Title.TextColor3 = Color3.fromRGB(0,60,120)
-Title.TextScaled = true
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Frame
-
-local KeyBox = Instance.new("TextBox")
-KeyBox.Size = UDim2.new(0.9,0,0,40)
-KeyBox.Position = UDim2.new(0.05,0,0.3,0)
-KeyBox.PlaceholderText = "Enter Key..."
-KeyBox.Font = Enum.Font.Gotham
-KeyBox.TextSize = 18
-KeyBox.TextColor3 = Color3.fromRGB(0,0,0)
-KeyBox.BackgroundColor3 = Color3.fromRGB(255,255,255)
-KeyBox.BorderSizePixel = 0
-KeyBox.TextXAlignment = Enum.TextXAlignment.Left
-KeyBox.Parent = Frame
-addCorner(KeyBox,8)
-
-local EnterBtn = Instance.new("TextButton")
-EnterBtn.Size = UDim2.new(0.42,0,0,40)
-EnterBtn.Position = UDim2.new(0.05,0,0.65,0)
-EnterBtn.BackgroundColor3 = Color3.fromRGB(100,180,255)
-EnterBtn.Text = "Enter"
-EnterBtn.TextScaled = true
-EnterBtn.Font = Enum.Font.GothamBold
-EnterBtn.TextColor3 = Color3.fromRGB(255,255,255)
-EnterBtn.Parent = Frame
-addCorner(EnterBtn,8)
-
-local GetKeyBtn = Instance.new("TextButton")
-GetKeyBtn.Size = UDim2.new(0.42,0,0,40)
-GetKeyBtn.Position = UDim2.new(0.53,0,0.65,0)
-GetKeyBtn.BackgroundColor3 = Color3.fromRGB(80,160,230)
-GetKeyBtn.Text = "Get Key"
-GetKeyBtn.TextScaled = true
-GetKeyBtn.Font = Enum.Font.GothamBold
-GetKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
-GetKeyBtn.Parent = Frame
-addCorner(GetKeyBtn,8)
-
-local snowflakes = {}
-for i=1,10 do
-    local snow = Instance.new("TextLabel")
-    snow.Text = "❄️"
-    snow.TextSize = math.random(20,35)
-    snow.Position = UDim2.new(math.random(),0,math.random(),-50)
-    snow.BackgroundTransparency = 1
-    snow.Parent = ScreenGui
-    table.insert(snowflakes,snow)
+-- ======== utils ========
+local function pok(fn, ...)
+    local ok, res = pcall(fn, ...)
+    return ok, res
 end
 
-spawn(function()
-    while ScreenGui.Parent do
-        for _,snow in ipairs(snowflakes) do
-            local x = math.random()
-            snow.Position = UDim2.new(x,0,-0.05,0)
-            snow:TweenPosition(UDim2.new(x,0,1,0),"Linear","Out",math.random(6,12),true,function()
-                snow.Position = UDim2.new(math.random(),0,-0.05,0)
-            end)
-            task.wait(0.3)
-        end
-        task.wait(0.5)
+local function sWait(t)
+    if type(wait) == "function" then wait(t or 0.03) else task.wait(t or 0.03) end
+end
+
+local function sDelay(d, fn)
+    if typeof(delay) == "function" then
+        delay(d, fn)
+    else
+        spawn(function() sWait(d); pcall(fn) end)
     end
-end)
+end
 
-local function Notify(msg,color)
-    local Noti = Instance.new("TextLabel")
-    Noti.Size = UDim2.new(0,250,0,40)
-    Noti.Position = UDim2.new(1,-260,1,-60)
-    Noti.BackgroundColor3 = color
-    Noti.BorderSizePixel = 0
-    Noti.Text = msg
-    Noti.TextScaled = true
-    Noti.Font = Enum.Font.GothamBold
-    Noti.TextColor3 = Color3.fromRGB(255,255,255)
-    Noti.Parent = ScreenGui
-    Noti.Position = UDim2.new(1,-260,1,60)
-    Noti:TweenPosition(UDim2.new(1,-260,1,-60),"Out","Quad",0.5,true)
-    task.delay(3,function()
-        if Noti then
-            Noti:TweenPosition(UDim2.new(1,260,1,-60),"In","Quad",0.5,true)
-            game:GetService("Debris"):AddItem(Noti,1)
+-- encode/decode
+local function encode(str, k)
+    local out = {}
+    for i = 1, #str do
+        local a = string.byte(str, i)
+        local b = string.byte(k, ((i - 1) % #k) + 1)
+        out[i] = string.char(((a + b) % 256))
+    end
+    return table.concat(out)
+end
+local function decode(str, k)
+    local out = {}
+    for i = 1, #str do
+        local a = string.byte(str, i)
+        local b = string.byte(k, ((i - 1) % #k) + 1)
+        out[i] = string.char(((a - b) % 256))
+    end
+    return table.concat(out)
+end
+
+-- ======== Key memory (single-word Key) ========
+local Key = "(stars_are-so+C0oL!)" -- plain (change if needed)
+local Secret = "local_secret!"
+local Enc = encode(Key, Secret)
+
+local function randName()
+    return "K"..tostring(math.random(1000,9999))..tostring(os.time()%100000)
+end
+local Var = randName()
+getgenv()[Var] = Enc
+
+local function verify(input)
+    if type(input) ~= "string" then return false end
+    local e = getgenv()[Var]
+    if not e then return false end
+    return encode(input, Secret) == e
+end
+
+-- ======== Anti-tamper / anti-dump ========
+local enterStart = 0
+local MIN_ENTER = 1.5
+
+local function kill(msg)
+    pcall(function()
+        if type(msg) == "string" then
+            Player:Kick("Security: "..msg)
+        else
+            Player:Kick("Fuck YOU whore!!!")
         end
     end)
 end
 
-local CorrectKey = "(stars_are-so+C0oL!)"
+spawn(function()
+    while Gui and Gui.Parent do
+        sWait(2)
+        local ok, err = pcall(function()
+            if not Gui:IsDescendantOf(PlayerGui) then
+                kill("I hope u die CUNT")
+            end
+        end)
+        if not ok then kill("GUI error") end
+    end
+end)
 
-EnterBtn.MouseButton1Click:Connect(function()
-    if KeyBox.Text == CorrectKey then
-        Notify("Access Granted", Color3.fromRGB(0,170,90))
-        for i, frame in ipairs(gradients) do
-            frame:TweenSize(UDim2.new(1,0,0,0), "Out", "Quad", 0.2, true)
-            task.wait(0.1)
+spawn(function()
+    while Gui and Gui.Parent do
+        sWait(3) 
+        pcall(function()
+            for _, o in ipairs(Gui:GetDescendants()) do
+                if o:IsA("GuiObject") and o.Parent ~= Gui and not o:IsDescendantOf(PlayerGui) then
+                    kill("Unauthorized GUI clone detected")
+                end
+            end
+        end)
+    end
+end)
+
+-- ======== UI (single-word Ui) ========
+local colors = {
+    Color3.fromRGB(170,210,255),
+    Color3.fromRGB(160,200,245),
+    Color3.fromRGB(150,190,235),
+    Color3.fromRGB(140,180,225),
+    Color3.fromRGB(130,170,215),
+    Color3.fromRGB(120,160,205),
+    Color3.fromRGB(110,150,195),
+    Color3.fromRGB(100,140,185),
+    Color3.fromRGB(90,130,175)
+}
+local grads = {}
+for i,c in ipairs(colors) do
+    local f = Instance.new("Frame", Gui)
+    f.Size = UDim2.new(1,0,0.12,0)
+    f.Position = UDim2.new(0,0,(i-1)*0.12,0)
+    f.BackgroundColor3 = c
+    f.BorderSizePixel = 0
+    grads[i] = f
+end
+grads[#grads].Size = UDim2.new(1,0,0.16,0)
+
+local function corner(i, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r)
+    c.Parent = i
+end
+
+local Ui = Instance.new("Frame")
+Ui.Size = UDim2.new(0,350,0,300) -- taller to fit ASCII art
+Ui.Position = UDim2.new(0,20,0.5,-150)
+Ui.BackgroundColor3 = Color3.fromRGB(255,255,255)
+Ui.BackgroundTransparency = 0.15
+Ui.BorderSizePixel = 0
+Ui.Parent = Gui
+corner(Ui, 15)
+
+-- ASCII art for "LEAD HUB"
+local ArtText = [[
+     
+
+┏┓╋╋╋╋╋╋╋╋╋╋┏┓
+┃┃╋╋╋╋╋╋╋╋╋╋┃┃
+┃┃╋╋┏━━┳━━┳━┛┃
+┃┃╋┏┫┃━┫┏┓┃┏┓┃
+┃┗━┛┃┃━┫┏┓┃┗┛┃
+┗━━━┻━━┻┛┗┻━━┛
+   HUB
+]]
+
+local Art = Instance.new("TextLabel")
+Art.Size = UDim2.new(0.9,0,0.24,0)
+Art.Position = UDim2.new(0.05,0,0.04,0)
+Art.BackgroundTransparency = 1
+Art.Text = ArtText
+Art.TextColor3 = Color3.fromRGB(0,60,120)
+Art.TextWrapped = true
+Art.RichText = false
+Art.TextXAlignment = Enum.TextXAlignment.Left
+Art.TextYAlignment = Enum.TextYAlignment.Top
+Art.Font = Enum.Font.Code or Enum.Font.GothamBold
+Art.TextSize = 14
+Art.Parent = Ui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0.9,0,0,26)
+Title.Position = UDim2.new(0.05,0,0.30,0) -- moved down to fit ASCII art
+Title.BackgroundTransparency = 1
+Title.Text = "Lead Hub | V1.1"
+Title.TextColor3 = Color3.fromRGB(0,60,120)
+Title.TextScaled = false
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextSize = 16
+Title.Parent = Ui
+
+local Box = Instance.new("TextBox")
+Box.Size = UDim2.new(0.9,0,0,40)
+Box.Position = UDim2.new(0.05,0,0.45,0)
+Box.PlaceholderText = "Enter Key..."
+Box.Font = Enum.Font.Gotham
+Box.TextSize = 18
+Box.TextColor3 = Color3.fromRGB(0,0,0)
+Box.BackgroundColor3 = Color3.fromRGB(255,255,255)
+Box.BorderSizePixel = 0
+Box.TextXAlignment = Enum.TextXAlignment.Left
+Box.ClearTextOnFocus = false
+Box.Parent = Ui
+corner(Box, 8)
+
+local BtnEnter = Instance.new("TextButton")
+BtnEnter.Size = UDim2.new(0.42,0,0,40)
+BtnEnter.Position = UDim2.new(0.05,0,0.68,0)
+BtnEnter.BackgroundColor3 = Color3.fromRGB(100,180,255)
+BtnEnter.Text = "Enter"
+BtnEnter.TextScaled = true
+BtnEnter.Font = Enum.Font.GothamBold
+BtnEnter.TextColor3 = Color3.fromRGB(255,255,255)
+BtnEnter.Parent = Ui
+corner(BtnEnter, 8)
+
+local BtnGet = Instance.new("TextButton")
+BtnGet.Size = UDim2.new(0.42,0,0,40)
+BtnGet.Position = UDim2.new(0.53,0,0.68,0)
+BtnGet.BackgroundColor3 = Color3.fromRGB(80,160,230)
+BtnGet.Text = "Get Key"
+BtnGet.TextScaled = true
+BtnGet.Font = Enum.Font.GothamBold
+BtnGet.TextColor3 = Color3.fromRGB(255,255,255)
+BtnGet.Parent = Ui
+corner(BtnGet, 8)
+
+local function Notify(msg, col, dur)
+    local N = Instance.new("TextLabel", Gui)
+    N.Size = UDim2.new(0,250,0,40)
+    N.Position = UDim2.new(1,-260,1,-60)
+    N.BackgroundColor3 = col or Color3.fromRGB(60,60,60)
+    N.BorderSizePixel = 0
+    N.Text = msg or ""
+    N.TextScaled = true
+    N.Font = Enum.Font.GothamBold
+    N.TextColor3 = Color3.fromRGB(255,255,255)
+    corner(N, 8)
+    sDelay(dur or 3, function() if N and N.Parent then N:Destroy() end end)
+end
+
+-- simple snow
+for i = 1, 10 do
+    local s = Instance.new("TextLabel", Gui)
+    s.Text = "❄️"
+    s.TextSize = math.random(20, 30)
+    s.Position = UDim2.new(math.random(),0,math.random()*0.2,0)
+    s.BackgroundTransparency = 1
+    spawn(function()
+        while s.Parent do
+            sWait(0.08 + math.random()*0.05)
+            local cy = s.Position.Y.Scale + 0.01 + math.random()*0.02
+            local nx = math.random()
+            s.Position = UDim2.new(nx,0,cy,0)
+            if s.Position.Y.Scale > 1.1 then
+                s.Position = UDim2.new(math.random(),0,-0.05,0)
+            end
         end
-        Frame:TweenSize(UDim2.new(0,350,0,0), "Out", "Quad", 0.7, true)
-        task.wait(0.7)
-        ScreenGui:Destroy()
-        local Player = game.Players.LocalPlayer
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KeySystem"
-ScreenGui.Parent = Player:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
+    end)
+end
 
-local SupportedGames = {
-    {Id = 79546208627805, Name = "v1", Exec = function() loadstring(game:HttpGet("https://files.catbox.moe/vgua6a.txt"))()
- end},
-{Id = 4924922222, Name = "v1", Exec = function() loadstring(game:HttpGet("https://files.catbox.moe/z2z5hg.txt"))()
- end},
-    {Id = id, Name = "name", Exec = function() print("Hello Dahood") end},
-    {Id = id, Name = "Name", Exec = function() print("Murder Mystery 2 Script") end},
-    {Id = if, Name = "name", Exec = function() print("Forsaken Script") end},
-    {Id = id, Name = "name", Exec = function() print("Ink Game Script") end},
+-- safe http
+local function httpGet(u)
+    local ok, res = pcall(function() return game:HttpGet(u, true) end)
+    if ok and res and #res > 0 then return res end
+    return nil
+end
+
+-- Supported games (single-word Function entries)
+local Function = {
+    {Id = 79546208627805, Name = "v1", Exec = function()
+        local code = httpGet("https://files.catbox.moe/vgua6a.txt")
+        if code then loadstring(code)() end
+    end},
+    {Id = 4924922222, Name = "v1", Exec = function()
+        local code = httpGet("https://files.catbox.moe/z2z5hg.txt")
+        if code then loadstring(code)() end
+    end}
 }
 
-local supportedGame = nil
-for _,v in ipairs(SupportedGames) do
-    if game.PlaceId == v.Id then supportedGame = v break end
-end
-
-local colors = {Color3.fromRGB(170,210,255),Color3.fromRGB(160,200,245),Color3.fromRGB(150,190,235),Color3.fromRGB(140,180,225),Color3.fromRGB(130,170,215),Color3.fromRGB(120,160,205),Color3.fromRGB(110,150,195),Color3.fromRGB(100,140,185),Color3.fromRGB(90,130,175)}
-local gradients = {}
-for i,color in ipairs(colors) do
-    local g = Instance.new("Frame",ScreenGui)
-    g.Size = UDim2.new(1,0,0.12,0)
-    g.Position = UDim2.new(0,0,-0.12,0)
-    g.BackgroundColor3 = color
-    g.BorderSizePixel = 0
-    table.insert(gradients,g)
-end
-gradients[#gradients].Size = UDim2.new(1,0,0.16,0)
-
-local LoadingFrame = Instance.new("Frame")
-LoadingFrame.Size = UDim2.new(0,450,0,220)
-LoadingFrame.Position = UDim2.new(0.5,-225,0.5,-110)
-LoadingFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
-LoadingFrame.BackgroundTransparency = 0.2
-LoadingFrame.BorderSizePixel = 0
-LoadingFrame.Parent = ScreenGui
-
-local function addCorner(inst,r)
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0,r)
-    c.Parent = inst
-end
-addCorner(LoadingFrame,20)
-
-local LoadingText = Instance.new("TextLabel")
-LoadingText.Size = UDim2.new(0.9,0,0.3,0)
-LoadingText.Position = UDim2.new(0.05,0,0.25,0)
-LoadingText.BackgroundTransparency = 1
-LoadingText.TextColor3 = Color3.fromRGB(0,70,130)
-LoadingText.TextScaled = true
-LoadingText.Font = Enum.Font.GothamBold
-LoadingText.Parent = LoadingFrame
-if supportedGame then LoadingText.Text = "Loading "..supportedGame.Name.."..." else LoadingText.Text = "Loading..." end
-
-local BarBG = Instance.new("Frame")
-BarBG.Size = UDim2.new(0.9,0,0,25)
-BarBG.Position = UDim2.new(0.05,0,0.7,0)
-BarBG.BackgroundColor3 = Color3.fromRGB(220,220,220)
-BarBG.BorderSizePixel = 0
-BarBG.Parent = LoadingFrame
-addCorner(BarBG,15)
-
-local BarFill = Instance.new("Frame")
-BarFill.Size = UDim2.new(0,0,1,0)
-BarFill.BackgroundColor3 = Color3.fromRGB(100,180,255)
-BarFill.BorderSizePixel = 0
-BarFill.Parent = BarBG
-addCorner(BarFill,15)
-
-task.spawn(function()
-    while LoadingFrame.Parent do
-        local snow = Instance.new("TextLabel")
-        snow.Text = "❄️"
-        snow.TextSize = math.random(20,35)
-        snow.Position = UDim2.new(math.random(),0,0,-50)
-        snow.BackgroundTransparency = 1
-        snow.Parent = ScreenGui
-        local dist = math.random(500,800)
-        snow:TweenPosition(UDim2.new(snow.Position.X.Scale,0,0,dist),"Out","Linear",math.random(6,10),true,function() snow:Destroy() end)
-        task.wait(0.5)
-    end
-end)
-
-for i,frame in ipairs(gradients) do
-    frame:TweenPosition(UDim2.new(0,0,0.12*(i-1),0),"Out","Quad",0.6,true)
-    task.wait(0.35)
-end
-
-task.spawn(function()
-    for i = 0,1,0.004 do
-        BarFill.Size = UDim2.new(i,0,1,0)
-        if supportedGame then LoadingText.Text = "Loading "..supportedGame.Name.."... "..math.floor(i*100).."%"
-        else LoadingText.Text = "Loading... "..math.floor(i*100).."%"
+local function runIt()
+    local found = false
+    for _, v in ipairs(Function) do
+        if game.PlaceId == v.Id then
+            found = true
+            Notify("Supported game detected, loading...", Color3.fromRGB(0,170,90), 2)
+            sDelay(0.8, function() pcall(function() v.Exec() end) end)
+            break
         end
-        task.wait(0.05)
     end
-end)
+    if not found then
+        local P = Instance.new("Frame", Gui)
+        P.Size = UDim2.new(0,400,0,180)
+        P.Position = UDim2.new(0.5,-200,0.5,-90)
+        P.BackgroundColor3 = Color3.fromRGB(30,30,30)
+        P.BorderSizePixel = 0
+        corner(P, 12)
 
-task.wait(7)
+        local M = Instance.new("TextLabel", P)
+        M.Size = UDim2.new(0.9,0,0.5,0)
+        M.Position = UDim2.new(0.05,0,0.12,0)
+        M.BackgroundTransparency = 1
+        M.Text = "This game isn't supported."
+        M.TextColor3 = Color3.fromRGB(255,255,255)
+        M.TextScaled = true
+        M.Font = Enum.Font.GothamBold
+        M.TextWrapped = true
 
-for _,v in ipairs({LoadingFrame,table.unpack(gradients)}) do
-    v:TweenPosition(UDim2.new(v.Position.X.Scale,0,v.Position.Y.Scale-0.5,0),"Out","Quad",0.7,true)
-    v:TweenSize(UDim2.new(v.Size.X.Scale,0,0,0),"Out","Quad",0.7,true)
+        local Y = Instance.new("TextButton", P)
+        Y.Size = UDim2.new(0.4,0,0,50)
+        Y.Position = UDim2.new(0.05,0,0.65,0)
+        Y.BackgroundColor3 = Color3.fromRGB(0,170,90)
+        Y.Text = "alright"
+        Y.TextScaled = true
+        Y.Font = Enum.Font.GothamBold
+        Y.TextColor3 = Color3.fromRGB(255,255,255)
+        corner(Y, 10)
+
+        local N = Instance.new("TextButton", P)
+        N.Size = UDim2.new(0.4,0,0,50)
+        N.Position = UDim2.new(0.55,0,0.65,0)
+        N.BackgroundColor3 = Color3.fromRGB(200,50,50)
+        N.Text = "ok"
+        N.TextScaled = true
+        N.Font = Enum.Font.GothamBold
+        N.TextColor3 = Color3.fromRGB(255,255,255)
+        corner(N, 10)
+
+        Y.MouseButton1Click:Connect(function()
+            Notify("Launching Command Bar...", Color3.fromRGB(0,120,200), 2)
+            P:Destroy()
+            sDelay(0.5, function() print("User accepted popup") end)
+        end)
+        N.MouseButton1Click:Connect(function()
+            Notify("Okay. Closing.", Color3.fromRGB(120,120,120), 1.5)
+            P:Destroy()
+            sDelay(0.5, function() Gui:Destroy() end)
+        end)
+    end
 end
-task.wait(0.8)
-LoadingFrame:Destroy()
 
-if supportedGame then
-    print("Supported game detected! Executing script for "..supportedGame.Name.."...")
-    supportedGame.Exec()
-else
-    local Popup = Instance.new("Frame")
-    Popup.Size = UDim2.new(0,400,0,180)
-    Popup.Position = UDim2.new(0.5,-200,0.5,-90)
-    Popup.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    Popup.BackgroundTransparency = 0.1
-    Popup.BorderSizePixel = 0
-    Popup.Parent = ScreenGui
-    addCorner(Popup,15)
-
-    local Msg = Instance.new("TextLabel")
-    Msg.Size = UDim2.new(0.9,0,0.5,0)
-    Msg.Position = UDim2.new(0.05,0,0.1,0)
-    Msg.BackgroundTransparency = 1
-    Msg.Text = "This game isn't supported."
-    Msg.TextColor3 = Color3.fromRGB(255,255,255)
-    Msg.TextScaled = true
-    Msg.Font = Enum.Font.GothamBold
-    Msg.TextWrapped = true
-    Msg.Parent = Popup
-
-    local YesBtn = Instance.new("TextButton")
-    YesBtn.Size = UDim2.new(0.4,0,0,50)
-    YesBtn.Position = UDim2.new(0.05,0,0.65,0)
-    YesBtn.BackgroundColor3 = Color3.fromRGB(0,170,90)
-    YesBtn.Text = "alright"
-    YesBtn.TextScaled = true
-    YesBtn.Font = Enum.Font.GothamBold
-    YesBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    YesBtn.Parent = Popup
-    addCorner(YesBtn,10)
-
-    local NahBtn = Instance.new("TextButton")
-    NahBtn.Size = UDim2.new(0.4,0,0,50)
-    NahBtn.Position = UDim2.new(0.55,0,0.65,0)
-    NahBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
-    NahBtn.Text = "ok"
-    NahBtn.TextScaled = true
-    NahBtn.Font = Enum.Font.GothamBold
-    NahBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    NahBtn.Parent = Popup
-    addCorner(NahBtn,10)
-
-    YesBtn.MouseButton1Click:Connect(function() print("Launching Command Bar...") Popup:Destroy() end)
-    NahBtn.MouseButton1Click:Connect(function() print("User declined") Popup:Destroy() end)
-                end
+-- button logic
+BtnEnter.MouseButton1Click:Connect(function()
+    local now = os.time() + (tick() or 0)
+    if enterStart == 0 then enterStart = now end
+    if (now - enterStart) < MIN_ENTER then
+        Notify("Wait a moment before entering key.", Color3.fromRGB(255,170,0), 2)
+        return
+    end
+    if type(Box.Text) ~= "string" or #Box.Text < 6 then
+        Notify("Invalid key format.", Color3.fromRGB(200,0,0), 2)
+        return
+    end
+    if verify(Box.Text) then
+        Notify("Access Granted", Color3.fromRGB(0,170,90), 2)
+        sDelay(0.25, function()
+            pcall(function() Gui:ClearAllChildren() end)
+            local L = Instance.new("TextLabel", Gui)
+            L.Size = UDim2.new(0,300,0,100)
+            L.Position = UDim2.new(0.5,-150,0.5,-50)
+            L.BackgroundColor3 = Color3.fromRGB(255,255,255)
+            L.BackgroundTransparency = 0.15
+            L.TextColor3 = Color3.fromRGB(0,70,130)
+            L.Font = Enum.Font.GothamBold
+            L.TextScaled = true
+            corner(L, 12)
+            L.Text = "Loading..."
+            sDelay(1.2, function() runIt() end)
+        end)
     else
-        Notify("Wrong Key!", Color3.fromRGB(200,0,0))
+        Notify("Wrong Key!", Color3.fromRGB(200,0,0), 2)
     end
 end)
 
-GetKeyBtn.MouseButton1Click:Connect(function()
-    setclipboard("https://discord.gg/mPMyz3rB2J")
-    Notify("Key link copied!", Color3.fromRGB(80,160,230))
+BtnGet.MouseButton1Click:Connect(function()
+    if type(setclipboard) == "function" then
+        pcall(function() setclipboard("https://discord.gg/mPMyz3rB2J") end)
+        Notify("Key link copied!", Color3.fromRGB(80,160,230), 2)
+    else
+        Notify("Clipboard not available. Visit: discord.gg/mPMyz3rB2J", Color3.fromRGB(80,160,230), 3)
+    end
+end)
+
+-- clear sensitive memory after 30s
+sDelay(30, function()
+    Key = nil
+    Secret = nil
+    local scramble = ""
+    for i = 1, 16 do scramble = scramble .. string.char(math.random(32,126)) end
+    getgenv()[Var] = scramble
+end)
+spawn(function()
+    while true do
+        sWait(4)
+        if not Gui or not Gui.Parent then
+            print("KeySystem GUI removed unexpectedly.")
+            break
+        end
+    end
 end)
