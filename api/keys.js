@@ -1,10 +1,22 @@
-const validKeys = [
-  "KEY-7A3B9C2D4E5F6G8H",
-  "KEY-9J8K7L6M5N4P3Q2R",
-  "KEY-2S3T4U5V6W7X8Y9Z",
-  "KEY-5A6B7C8D9E0F1G2H",
-  "KEY-3I4J5K6L7M8N9O0P"
-];
+// Generate completely random keys
+const generateRandomKey = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const segments = [];
+  
+  // Generate 4 segments of 4 random characters each
+  for (let i = 0; i < 4; i++) {
+    let segment = '';
+    for (let j = 0; j < 4; j++) {
+      segment += chars[Math.floor(Math.random() * chars.length)];
+    }
+    segments.push(segment);
+  }
+  
+  return segments.join('-');
+};
+
+// Generate 15 completely random keys
+const validKeys = Array.from({ length: 15 }, () => generateRandomKey());
 
 export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
