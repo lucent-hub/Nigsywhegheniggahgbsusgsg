@@ -1,0 +1,20 @@
+-- obf_combined.lua
+-- 1) numeric char array -> small chunk
+local p = {112,114,105,110,116} -- "print"
+local name = ""
+for i=1,#p do name = name .. string.char(p[i]) end
+
+-- 2) concatenated and escaped message pieces
+local m = "He" .. "ll" .. "o" .. ", " .. "C" .. "o" .. "mb" .. "i" .. "n" .. "e" .. "d" .. "!"
+
+-- 3) hex snippet appended
+local hex = "20436f6d706c657465642e" -- " Completed."
+local function hex2str(h) return (h:gsub('..', function(cc) return string.char(tonumber(cc,16)) end)) end
+
+-- 4) base64 encoded footer
+local footer64 = "46696e69736865642e" -- not base64, but leave as an opaque literal
+
+-- assemble a final output (we won't execute assembled code; just display)
+local final = m .. hex2str(hex) .. " [" .. footer64 .. "]"
+print("Function name:", name)
+print("Message:", final)
