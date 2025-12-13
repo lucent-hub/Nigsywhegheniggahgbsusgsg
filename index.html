@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>fevber can u die plzzz</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Poppins',sans-serif;
+  color:white;
+  overflow-x:hidden;
+  text-align:center;
+  background:#0b0b0c;
+}
+
+/* Background Video */
+.bg{
+  position:fixed;
+  width:100%;height:100%;
+  top:0;left:0;
+  object-fit:cover;
+  z-index:-3;
+}
+.overlay{
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:-2;
+}
+
+/* Container */
+.container{
+  max-width:420px;
+  margin:50px auto;
+  padding:25px;
+  background:rgba(255,255,255,0.05);
+  border-radius:25px;
+  border:2px solid rgba(255,255,255,0.3);
+  backdrop-filter:blur(12px);
+  box-shadow:0 0 20px #fff8,0 0 40px #fff5;
+  animation:fadeIn .8s ease;
+}
+
+/* Avatar with automatic jump, no outline */
+.avatar{
+  width:120px;height:120px;
+  margin:0 auto;
+  border-radius:25px;
+  overflow:hidden;
+  animation: jumpAvatar 1s infinite;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+@keyframes jumpAvatar {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-15px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+
+/* Animated Name */
+.animated-name {
+  text-align:center;
+  margin-top:15px;
+  font-family:'Orbitron',sans-serif;
+  font-size:28px;
+  color:white;
+  text-shadow:0 0 6px #fff,0 0 12px #fff5;
+  animation: nameGlow 1.5s infinite alternate;
+}
+@keyframes nameGlow {
+  0% { text-shadow:0 0 6px #fff,0 0 12px #fff5; color:#fff; }
+  50% { text-shadow:0 0 20px #00ffff,0 0 30px #ff00ff; color:#00ffff; }
+  100% { text-shadow:0 0 6px #fff,0 0 12px #fff5; color:#fff; }
+}
+
+/* Description */
+.bio{
+  margin-top:6px;
+  font-size:13px;
+  color:#ccc;
+  text-shadow:0 0 3px #fff2;
+}
+
+/* Social Links - No outline, jump animation on hover */
+.links{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-top:25px;
+}
+.links a{
+  font-size:28px;
+  color:white;
+  padding:0;
+  display:inline-block;
+  transition:0.3s;
+}
+.links a:hover{
+  color:#00ffff;
+  text-shadow:0 0 12px #00ffff,0 0 20px #ff00ff;
+  animation: jump 0.5s ease;
+}
+@keyframes jump{
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-15px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+
+/* Music Section */
+.music{
+  margin-top:30px;
+  padding:15px;
+  background:rgba(255,255,255,0.05);
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.3);
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 15px #fff5,0 0 25px #fff3;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.music img{
+  width:30px;
+  height:30px;
+}
+.music-info{
+  flex:1;
+  text-align:left;
+}
+.music-info h3{
+  margin:0;
+  font-size:16px;
+  text-shadow:0 0 5px #fff8;
+}
+.music-info p{
+  margin:2px 0 0;
+  font-size:13px;
+  color:#ccc;
+}
+.music button{
+  padding:6px 12px;
+  border:none;
+  border-radius:12px;
+  background:#00ffff;
+  color:#000;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  text-shadow:0 0 6px #fff;
+}
+.music button:hover{
+  background:#ff00ff;
+  color:white;
+  box-shadow:0 0 10px #ff00ff,0 0 15px #00ffff;
+}
+
+/* Countdown */
+.countdown{
+  margin-top:25px;
+  display:flex;
+  justify-content:space-around;
+  gap:10px;
+  text-align:center;
+  color:#fff;
+  font-family:'Orbitron',sans-serif;
+  font-size:20px;
+  text-shadow:0 0 6px #fff,0 0 12px #fff5;
+}
+.countdown div span{
+  display:block;
+  font-size:32px;
+  color:#fff;
+  text-shadow:0 0 8px #fff,0 0 16px #fff5;
+}
+
+/* Bottom-right PNG pet (BIGGER) */
+.pet{
+  position:fixed;
+  bottom:10px;
+  right:10px;
+  width:150px;
+  height:auto;
+  z-index:10;
+}
+.pet img{
+  width:100%;
+  height:auto;
+}
+</style>
+</head>
+
+<body>
+
+<video autoplay muted loop playsinline class="bg">
+  <source src="https://files.catbox.moe/085pz6.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
+
+<div class="container">
+  <div class="avatar">
+    <img src="https://files.catbox.moe/6sbw5f.gif">
+  </div>
+
+  <h1 class="animated-name">Fevber</h1>
+  <div>official retard</div>
+
+  <div class="links">
+    <a href="https://www.instagram.com/fevber._?igsh=MWVseGN5MHM1am54cg==" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+    <a href="https://youtube.com/@pingmeincomment?si=xtEVNgvymxllT7fX" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+    <a href="https://discord.com/users/1216212793947328603" target="_blank"><i class="fa-brands fa-discord"></i></a>
+  </div>
+
+  <div class="music">
+    <img src="https://files.catbox.moe/26raui.jpeg" alt="Music Icon">
+    <div class="music-info">
+      <h3>Feels good</h3>
+      <p>jaydes</p>
+    </div>
+    <button id="playBtn">Play/Pause</button>
+    <audio id="music" src="https://files.catbox.moe/39u36w.mp3"></audio>
+  </div>
+
+  <div class="countdown">
+    <div><span id="days">0</span>Days</div>
+    <div><span id="hours">0</span>Hours</div>
+    <div><span id="minutes">0</span>Minutes</div>
+    <div><span id="seconds">0</span>Seconds</div>
+  </div>
+</div>
+
+<!-- Bottom-right PNG pet -->
+<div class="pet">
+  <img src="https://litterbox.catbox.moe/resources/qts/1424092566613.png" alt="Pet">
+</div>
+
+<script>
+function updateCountdown(){
+  const now = new Date();
+  const nextYear = new Date(`Jan 1, ${now.getFullYear()+1} 00:00:00`);
+  const diff = nextYear - now;
+
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff/(1000*60*60)) %24);
+  const minutes = Math.floor((diff/(1000*60)) %60);
+  const seconds = Math.floor((diff/1000) %60);
+
+  document.getElementById('days').textContent = days;
+  document.getElementById('hours').textContent = hours;
+  document.getElementById('minutes').textContent = minutes;
+  document.getElementById('seconds').textContent = seconds;
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+// Play/Pause Music
+const music = document.getElementById('music');
+const playBtn = document.getElementById('playBtn');
+playBtn.addEventListener('click',()=>{
+  if(music.paused){music.play();}else{music.pause();}
+});
+</script>
+
+</body>
+      </html>
