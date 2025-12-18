@@ -269,23 +269,6 @@ playBtn.addEventListener('click',()=>{
 });
 
 // Discord webhook notification on visit with embedded pet image
-const webhookURL = "https://discord.com/api/webhooks/1449247858623774841/zbvUFvCKGkQE_IX7pjNHi5176dgfivHuaUJsXeHiwzHKTdmERMKfaGThq4VnMVGw2uT0";
-fetch(webhookURL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    content: "@everyone some guy visted here",
-    embeds: [{
-      title: "New person!!",
-      description: "alright fevbee kys to much hype",
-      color: 3447003,
-      image: { url: "https://litterbox.catbox.moe/resources/qts/1424092566613.png" },
-      timestamp: new Date()
-    }]
-  })
-});
 </script>
 
 </body>
