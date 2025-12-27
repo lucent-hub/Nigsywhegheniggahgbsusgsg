@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# HackerAI Ultimate Security Toolkit (V3 - Enhanced)
+# Tera Ultimate Security Toolkit )
 # ==============================================================================
 
 # --- Configuration ---
-VERSION="3.0"
-LOG_FILE="hackerai_$(date +%Y%m%d_%H%M%S).log"
+VERSION="BETA / IN DEV"
+LOG_FILE="tera_$(date +%Y%m%d_%H%M%S).log"
 THREADS=50
 TIMEOUT=2
 
@@ -30,13 +30,7 @@ show_banner() {
     clear
     echo -e "${CYAN}
     ╔══════════════════════════════════════════════════════════╗
-    ║     _   _            _    _____ _____ ___   _   _        ║
-    ║    | | | | __ _  ___| | _|_   _|_   _/ _ \\ / \\ | |       ║
-    ║    | |_| |/ _\` |/ __| |/ / | |   | |/ /_\\ \\  \\| |       ║
-    ║    |  _  | (_| | (__|   <  | |   | / ___ \\ |\\  |        ║
-    ║    |_| |_|\\__,_|\\___|_|\\_\\ |_|   |_/_/   \\_\\_| \\_|      ║
-    ║                                                          ║
-    ║              ULTIMATE SECURITY TOOLKIT v$VERSION             ║
+    ║        TERA v$VERSION    / Love yall so much        ║
     ╚══════════════════════════════════════════════════════════╝
     ${NC}"
 }
@@ -529,15 +523,15 @@ main_menu() {
         show_banner
         echo -e "${CYAN}
     ╔══════════════════════════════════════════════════════════╗
-    ║                         MAIN MENU                         ║
+    ║                         MAIN MENU                       ║ side note = by fevber love yall ❤️
     ╠══════════════════════════════════════════════════════════╣
-    ║  1) Port Scanner          8) Reverse Shell Generator     ║
+    ║  1) Port Scanner          8) Reverse Shell Generator  ║
     ║  2) Directory Brute       9) Packet Sniffer (Root)       ║
-    ║  3) SMB Enumerator        10) Data Exfiltration          ║
-    ║  4) Subdomain Finder      11) Network Discovery          ║
-    ║  5) SSH Brute Force       12) Vulnerability Scanner      ║
+    ║  3) SMB Enumerator        10) Data Exfiltration        ║
+    ║  4) Subdomain Finder      11) Network Discover     ║
+    ║  5) SSH Brute Force       12) Vulnerability Scanner ║
     ║  6) Privilege Escalation  13) Web Crawler                ║
-    ║  7) Report Viewer         0) Exit                        ║
+    ║  7) Report Viewer         0) Exit                                      ║
     ╚══════════════════════════════════════════════════════════╝
     ${NC}"
         
