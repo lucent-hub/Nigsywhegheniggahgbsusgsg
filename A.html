@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visitor Tracker</title>
+</head>
+<body>
+  <h1>Welcome 👋</h1>
+  <p>Your visit has been logged.</p>
+
+  <script>
+    fetch("https://discord.com/api/webhooks/1450653052519321704/mVq2-NqtyBelvKzmWXHuFIb51w3fGLCaxJ1QUDIaZ30PFFVZa_nzaoeXbEam3yzdMcvc", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: "Website Tracker",
+        avatar_url: "https://i.imgur.com/AfFp7pu.png",
+        embeds: [{
+          title: "🌐 New Website Visit",
+          color: 5814783,
+          fields: [
+            {
+              name: "🕒 Time",
+              value: new Date().toLocaleString(),
+              inline: true
+            },
+            {
+              name: "🖥 User Agent",
+              value: navigator.userAgent.substring(0, 100),
+              inline: false
+            },
+            {
+              name: "🌍 Language",
+              value: navigator.language,
+              inline: true
+            }
+          ]
+        }]
+      })
+    }).catch(() => {});
+  </script>
+</body>
+</html>
