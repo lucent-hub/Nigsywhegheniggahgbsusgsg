@@ -16,9 +16,9 @@ body{
   overflow-x:hidden;
   text-align:center;
   background:#0b0b0c;
+  cursor:pointer;
 }
 
-/* Background Video */
 .bg{
   position:fixed;
   width:100%;height:100%;
@@ -33,7 +33,6 @@ body{
   z-index:-2;
 }
 
-/* Container */
 .container{
   max-width:420px;
   margin:50px auto;
@@ -43,10 +42,8 @@ body{
   border:2px solid rgba(255,255,255,0.3);
   backdrop-filter:blur(12px);
   box-shadow:0 0 20px #fff8,0 0 40px #fff5;
-  animation:fadeIn .8s ease;
 }
 
-/* Avatar with automatic jump, no outline */
 .avatar{
   width:120px;height:120px;
   margin:0 auto;
@@ -55,39 +52,27 @@ body{
   animation: jumpAvatar 1s infinite;
 }
 .avatar img{width:100%;height:100%;object-fit:cover}
-@keyframes jumpAvatar {
-  0% { transform: translateY(0); }
-  25% { transform: translateY(-15px); }
-  50% { transform: translateY(0); }
-  75% { transform: translateY(-7px); }
-  100% { transform: translateY(0); }
+@keyframes jumpAvatar{
+  0%{transform:translateY(0)}
+  25%{transform:translateY(-15px)}
+  50%{transform:translateY(0)}
+  75%{transform:translateY(-7px)}
+  100%{transform:translateY(0)}
 }
 
-/* Animated Name */
-.animated-name {
-  text-align:center;
+.animated-name{
   margin-top:15px;
   font-family:'Orbitron',sans-serif;
   font-size:28px;
-  color:white;
   text-shadow:0 0 6px #fff,0 0 12px #fff5;
-  animation: nameGlow 1.5s infinite alternate;
+  animation:nameGlow 1.5s infinite alternate;
 }
-@keyframes nameGlow {
-  0% { text-shadow:0 0 6px #fff,0 0 12px #fff5; color:#fff; }
-  50% { text-shadow:0 0 20px #00ffff,0 0 30px #ff00ff; color:#00ffff; }
-  100% { text-shadow:0 0 6px #fff,0 0 12px #fff5; color:#fff; }
-}
-
-/* Description */
-.bio{
-  margin-top:6px;
-  font-size:13px;
-  color:#ccc;
-  text-shadow:0 0 3px #fff2;
+@keyframes nameGlow{
+  0%{text-shadow:0 0 6px #fff}
+  50%{text-shadow:0 0 20px #00ffff,0 0 30px #ff00ff;color:#00ffff}
+  100%{text-shadow:0 0 6px #fff}
 }
 
-/* Social Links - No outline, jump animation on hover */
 .links{
   display:flex;
   justify-content:center;
@@ -97,103 +82,97 @@ body{
 .links a{
   font-size:28px;
   color:white;
-  padding:0;
-  display:inline-block;
-  transition:0.3s;
+  transition:.3s;
 }
 .links a:hover{
   color:#00ffff;
   text-shadow:0 0 12px #00ffff,0 0 20px #ff00ff;
-  animation: jump 0.5s ease;
+  animation:jump .5s;
 }
 @keyframes jump{
-  0% { transform: translateY(0); }
-  30% { transform: translateY(-15px); }
-  50% { transform: translateY(0); }
-  70% { transform: translateY(-7px); }
-  100% { transform: translateY(0); }
+  0%{transform:translateY(0)}
+  30%{transform:translateY(-15px)}
+  50%{transform:translateY(0)}
+  70%{transform:translateY(-7px)}
+  100%{transform:translateY(0)}
 }
 
-/* Music Section */
 .music{
   margin-top:30px;
   padding:15px;
   background:rgba(255,255,255,0.05);
   border-radius:18px;
   border:1px solid rgba(255,255,255,0.3);
-  backdrop-filter:blur(10px);
-  box-shadow:0 0 15px #fff5,0 0 25px #fff3;
   display:flex;
   align-items:center;
   gap:10px;
 }
-.music img{
-  width:30px;
-  height:30px;
-}
-.music-info{
-  flex:1;
-  text-align:left;
-}
-.music-info h3{
-  margin:0;
-  font-size:16px;
-  text-shadow:0 0 5px #fff8;
-}
-.music-info p{
-  margin:2px 0 0;
-  font-size:13px;
-  color:#ccc;
-}
+.music img{width:30px;height:30px}
+.music-info{text-align:left;flex:1}
+.music-info h3{font-size:16px}
+.music-info p{font-size:13px;color:#ccc}
 .music button{
   padding:6px 12px;
   border:none;
   border-radius:12px;
   background:#00ffff;
-  color:#000;
   font-weight:600;
   cursor:pointer;
-  transition:0.2s;
-  text-shadow:0 0 6px #fff;
-}
-.music button:hover{
-  background:#ff00ff;
-  color:white;
-  box-shadow:0 0 10px #ff00ff,0 0 15px #00ffff;
 }
 
-/* Countdown */
-.countdown{
+.clock-wrap{
   margin-top:25px;
   display:flex;
-  justify-content:space-around;
-  gap:10px;
-  text-align:center;
-  color:#fff;
-  font-family:'Orbitron',sans-serif;
-  font-size:20px;
-  text-shadow:0 0 6px #fff,0 0 12px #fff5;
+  justify-content:center;
 }
-.countdown div span{
-  display:block;
-  font-size:32px;
-  color:#fff;
-  text-shadow:0 0 8px #fff,0 0 16px #fff5;
+.clock{
+  width:160px;
+  height:160px;
+  border-radius:50%;
+  border:4px solid rgba(255,255,255,0.6);
+  box-shadow:0 0 15px #fff8, inset 0 0 10px #000;
+  position:relative;
+}
+.hand{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform-origin:left;
+}
+.second{width:70px;height:2px;background:#ff00ff}
+.minute{width:55px;height:4px;background:#00ffff}
+.center{
+  width:10px;height:10px;
+  background:#fff;border-radius:50%;
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
 }
 
-/* Bottom-right PNG pet (BIGGER) */
+.countdown{
+  margin-top:15px;
+  display:flex;
+  justify-content:space-around;
+  font-family:'Orbitron',sans-serif;
+}
+.countdown span{display:block;font-size:28px}
+
+.night{
+  margin-top:15px;
+  font-family:'Orbitron',sans-serif;
+  font-size:20px;
+  color:#00ffff;
+  text-shadow:0 0 10px #00ffff;
+  display:none;
+}
+
 .pet{
   position:fixed;
   bottom:10px;
   right:10px;
   width:150px;
-  height:auto;
   z-index:10;
 }
-.pet img{
-  width:100%;
-  height:auto;
-}
+.pet img{width:100%}
 </style>
 </head>
 
@@ -213,62 +192,99 @@ body{
   <div>official retard</div>
 
   <div class="links">
-    <a href="https://www.instagram.com/fevber._?igsh=MWVseGN5MHM1am54cg==" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-    <a href="https://youtube.com/@pingmeincomment?si=xtEVNgvymxllT7fX" target="_blank"><i class="fa-brands fa-youtube"></i></a>
-    <a href="https://discord.com/users/1216212793947328603" target="_blank"><i class="fa-brands fa-discord"></i></a>
+    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+    <a href="#"><i class="fa-brands fa-discord"></i></a>
   </div>
 
   <div class="music">
-    <img src="https://files.catbox.moe/26raui.jpeg" alt="Music Icon">
+    <img src="https://files.catbox.moe/26raui.jpeg">
     <div class="music-info">
       <h3>Feels good</h3>
       <p>jaydes</p>
     </div>
-    <button id="playBtn">Play/Pause</button>
+    <button id="playBtn">Play</button>
     <audio id="music" src="https://files.catbox.moe/39u36w.mp3"></audio>
   </div>
 
+  <div class="clock-wrap">
+    <div class="clock">
+      <div class="hand minute" id="mHand"></div>
+      <div class="hand second" id="sHand"></div>
+      <div class="center"></div>
+    </div>
+  </div>
+
+  <div class="night" id="nightText">it's night</div>
+
   <div class="countdown">
-    <div><span id="days">0</span>Days</div>
-    <div><span id="hours">0</span>Hours</div>
-    <div><span id="minutes">0</span>Minutes</div>
-    <div><span id="seconds">0</span>Seconds</div>
+    <div><span id="h">0</span>H</div>
+    <div><span id="m">0</span>M</div>
+    <div><span id="s">0</span>S</div>
   </div>
 </div>
 
-<!-- Bottom-right PNG pet -->
 <div class="pet">
-  <img src="https://litterbox.catbox.moe/resources/qts/1424092566613.png" alt="Pet">
+  <img src="https://litterbox.catbox.moe/resources/qts/1424092566613.png">
 </div>
 
+<audio id="bgAudio" loop>
+  <source src="https://files.catbox.moe/weort1.mp3">
+</audio>
+
 <script>
-function updateCountdown(){
-  const now = new Date();
-  const nextYear = new Date(`Jan 1, ${now.getFullYear()+1} 00:00:00`);
-  const diff = nextYear - now;
+const music=document.getElementById("music")
+document.getElementById("playBtn").onclick=()=>music.paused?music.play():music.pause()
 
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff/(1000*60*60)) %24);
-  const minutes = Math.floor((diff/(1000*60)) %60);
-  const seconds = Math.floor((diff/1000) %60);
+const bg=document.getElementById("bgAudio")
+let unlocked=false
+let fading=false
 
-  document.getElementById('days').textContent = days;
-  document.getElementById('hours').textContent = hours;
-  document.getElementById('minutes').textContent = minutes;
-  document.getElementById('seconds').textContent = seconds;
+document.body.onclick=()=>{
+  if(!unlocked){
+    bg.volume=0.25
+    bg.play()
+    unlocked=true
+  }
 }
 
-setInterval(updateCountdown, 1000);
-updateCountdown();
+function fadeClock(){
+  if(fading) return
+  fading=true
+  const i=setInterval(()=>{
+    if(bg.volume>0.05){
+      bg.volume-=0.01
+    }else{
+      clearInterval(i)
+    }
+  },100)
+}
 
-// Play/Pause Music
-const music = document.getElementById('music');
-const playBtn = document.getElementById('playBtn');
-playBtn.addEventListener('click',()=>{
-  if(music.paused){music.play();}else{music.pause();}
-});
+function tick(){
+  const n=new Date()
+  const hour=n.getHours()
+  const isNight=hour>=19||hour<6
+  if(isNight){
+    document.getElementById("nightText").style.display="block"
+    fadeClock()
+    if(music.paused) music.play()
+  }
 
-// Discord webhook notification on visit with embedded pet image
+  const mid=new Date()
+  mid.setHours(24,0,0,0)
+  const d=mid-n
+  const h=Math.floor(d/36e5)
+  const m=Math.floor(d/6e4)%60
+  const s=Math.floor(d/1e3)%60
+  document.getElementById("h").textContent=h
+  document.getElementById("m").textContent=m
+  document.getElementById("s").textContent=s
+  document.getElementById("sHand").style.transform=`rotate(${s*6}deg)`
+  document.getElementById("mHand").style.transform=`rotate(${m*6}deg)`
+}
+
+setInterval(tick,1000)
+tick()
 </script>
 
 </body>
