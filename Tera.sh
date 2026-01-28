@@ -13,18 +13,16 @@ echo
 }
 
 projects=(
-  "1|Webhook Sender|https://url.com/menu.py|python3 python3-pip pip:requests"
-  "2|Example Project|https://project.com/script.sh|curl jq"
-  "3|Test Tool|https://url.com/test.py|python3"
+  "1|license lookup|fevber-die-plz.vercel.app/Projects/Car.sh|"
 )
 
 detect_pkg_manager() {
-  if command -v apt >/dev/null 2>&1; then echo apt
+  if command -v pkg >/dev/null 2>&1; then echo pkg
+  elif command -v apt >/dev/null 2>&1; then echo apt
   elif command -v pacman >/dev/null 2>&1; then echo pacman
   elif command -v dnf >/dev/null 2>&1; then echo dnf
   elif command -v yum >/dev/null 2>&1; then echo yum
   elif command -v zypper >/dev/null 2>&1; then echo zypper
-  elif command -v pkg >/dev/null 2>&1; then echo pkg
   else echo none
   fi
 }
@@ -32,23 +30,27 @@ detect_pkg_manager() {
 install_wget() {
   command -v wget >/dev/null 2>&1 && return
   pm=$(detect_pkg_manager)
-  sudo_cmd=""
-  command -v sudo >/dev/null 2>&1 && sudo_cmd="sudo"
+
+  echo "Checking required packages..."
+  echo "Installing: wget"
 
   case $pm in
-    apt) $sudo_cmd apt update && $sudo_cmd apt install -y wget ;;
-    pacman) $sudo_cmd pacman -Sy --noconfirm wget ;;
-    dnf) $sudo_cmd dnf install -y wget ;;
-    yum) $sudo_cmd yum install -y wget ;;
-    zypper) $sudo_cmd zypper install -y wget ;;
     pkg) pkg install -y wget ;;
-    *) echo "No supported package manager"; exit 1 ;;
+    apt) apt install -y wget ;;
+    pacman) pacman -S --noconfirm wget ;;
+    dnf) dnf install -y wget ;;
+    yum) yum install -y wget ;;
+    zypper) zypper install -y wget ;;
+    *) echo "Package manager not supported"; exit 1 ;;
   esac
 }
 
 install_deps() {
   deps="$1"
   [[ -z "$deps" ]] && return
+
+  echo "Checking required packages..."
+  echo "Installing: $deps"
 
   pip_deps=""
   if [[ "$deps" == *pip:* ]]; then
@@ -57,16 +59,14 @@ install_deps() {
   fi
 
   pm=$(detect_pkg_manager)
-  sudo_cmd=""
-  command -v sudo >/dev/null 2>&1 && sudo_cmd="sudo"
 
   case $pm in
-    apt) [[ -n "$deps" ]] && $sudo_cmd apt install -y $deps ;;
-    pacman) [[ -n "$deps" ]] && $sudo_cmd pacman -S --noconfirm $deps ;;
-    dnf) [[ -n "$deps" ]] && $sudo_cmd dnf install -y $deps ;;
-    yum) [[ -n "$deps" ]] && $sudo_cmd yum install -y $deps ;;
-    zypper) [[ -n "$deps" ]] && $sudo_cmd zypper install -y $deps ;;
     pkg) [[ -n "$deps" ]] && pkg install -y $deps ;;
+    apt) [[ -n "$deps" ]] && apt install -y $deps ;;
+    pacman) [[ -n "$deps" ]] && pacman -S --noconfirm $deps ;;
+    dnf) [[ -n "$deps" ]] && dnf install -y $deps ;;
+    yum) [[ -n "$deps" ]] && yum install -y $deps ;;
+    zypper) [[ -n "$deps" ]] && zypper install -y $deps ;;
   esac
 
   [[ -n "$pip_deps" ]] && pip3 install $pip_deps
@@ -77,25 +77,19 @@ menu() {
   logo
 
   for p in "${projects[@]}"; do
-    IFS="|" read -r key name url deps <<< "$p"
-    echo "[$key] $name"
+    IFS="|" read -r k n u d <<< "$p"
+    echo "[$k] $n"
   done
   echo "[0] Exit"
   echo
 
-  read -p "Choose project: " choice
-  [[ "$choice" == "0" ]] && exit 0
+  read -p "Choose project: " c
+  [[ "$c" == "0" ]] && exit 0
 
   for p in "${projects[@]}"; do
-    IFS="|" read -r key name url deps <<< "$p"
-    if [[ "$choice" == "$key" ]]; then
-      download_project "$name" "$url" "$deps"
-      return
-    fi
+    IFS="|" read -r k n u d <<< "$p"
+    [[ "$c" == "$k" ]] && download_project "$n" "$u" "$d"
   done
-
-  sleep 1
-  menu
 }
 
 download_project() {
@@ -106,20 +100,28 @@ download_project() {
   install_wget
   install_deps "$deps"
 
-  wget -q --show-progress "$url"
-  [[ $? -ne 0 ]] && menu
+  echo "Downloading $name..."
+  wget -q --show-progress "$url" || menu
 
-  read -p "Start $name? (y/n): " ans
-  [[ "$ans" =~ ^[Yy]$ ]] && run_download "$url"
+  read -p "Start $name? (y/n): " a
+  [[ "$a" =~ ^[Yy]$ ]] && run_download "$(basename "$url")"
   menu
 }
 
 run_download() {
-  file="$(basename "$1")"
+  file="$1"
+
+  if head -n 1 "$file" | grep -qi "<!DOCTYPE html>"; then
+    echo "Downloaded file is HTML, not executable."
+    echo "Check the URL — it may be a webpage."
+    read -p "Press Enter..."
+    return
+  fi
 
   case "$file" in
     *.sh) bash "$file" ;;
     *.py) python3 "$file" ;;
+    *) echo "Unsupported file type." ;;
   esac
 
   read -p "Press Enter..."
