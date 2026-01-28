@@ -13,7 +13,7 @@ logo() {
     echo "╱╱╰╯╰━━┻╯╰╯╰╯"
     echo
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo " FAKE VEHICLE OSINT • DEMO MODE"
+    echo " LOOKUP VEHICLE OSINT • DEMO MODE"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
 }
@@ -22,7 +22,7 @@ header() {
     echo "[>] TARGET      | $1"
     echo "[>] STATE       | ${2:-US}"
     echo "[>] TIMESTAMP   | $(date)"
-    echo "[>] MODE        | SIMULATION / FAKE DATA"
+    echo "[>] MODE        | API BY @fevber ON DISCORD"
     echo
 }
 
