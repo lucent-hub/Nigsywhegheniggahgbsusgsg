@@ -6,150 +6,123 @@ echo "┃╭╮╭╮┃"
 echo "╰╯┃┃┣┻━┳━┳━━╮"
 echo "╱╱┃┃┃┃━┫╭┫╭╮┃"
 echo "╱╱┃┃┃┃━┫┃┃╭╮┃"
-echo "╱╱╰╯╰━━┻╯╰╯╰╯ V0.11"
+echo "╱╱╰╯╰━━┻╯╰╯╰╯ V0.1"
 echo
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
 }
 
 projects=(
-  "1|Webhook Sender|https://url.com/menu.py"
-  "2|Example Project|https://project.com/script.sh"
-   "3|test|https://url.com/test.py"
+  "1|Webhook Sender|https://url.com/menu.py|python3 python3-pip pip:requests"
+  "2|Example Project|https://project.com/script.sh|curl jq"
+  "3|Test Tool|https://url.com/test.py|python3"
 )
 
 detect_pkg_manager() {
-  if command -v apt > /dev/null 2>&1; then
-    echo "apt"
-  elif command -v pacman > /dev/null 2>&1; then
-    echo "pacman"
-  elif command -v dnf > /dev/null 2>&1; then
-    echo "dnf"
-  elif command -v yum > /dev/null 2>&1; then
-    echo "yum"
-  elif command -v zypper > /dev/null 2>&1; then
-    echo "zypper"
-  elif command -v pkg > /dev/null 2>&1; then
-    echo "pkg"
-  else
-    echo "none"
+  if command -v apt >/dev/null 2>&1; then echo apt
+  elif command -v pacman >/dev/null 2>&1; then echo pacman
+  elif command -v dnf >/dev/null 2>&1; then echo dnf
+  elif command -v yum >/dev/null 2>&1; then echo yum
+  elif command -v zypper >/dev/null 2>&1; then echo zypper
+  elif command -v pkg >/dev/null 2>&1; then echo pkg
+  else echo none
   fi
 }
 
 install_wget() {
-  if command -v wget > /dev/null 2>&1; then
-    return
-  fi
+  command -v wget >/dev/null 2>&1 && return
+  pm=$(detect_pkg_manager)
+  sudo_cmd=""
+  command -v sudo >/dev/null 2>&1 && sudo_cmd="sudo"
 
-  PKG_MANAGER=$(detect_pkg_manager)
-  SUDO=""
-  if command -v sudo > /dev/null 2>&1; then
-    SUDO="sudo"
-  fi
-
-  case $PKG_MANAGER in
-    apt)
-      $SUDO apt update
-      $SUDO apt install -y wget
-      ;;
-    pacman)
-      $SUDO pacman -Sy --noconfirm wget
-      ;;
-    dnf)
-      $SUDO dnf install -y wget
-      ;;
-    yum)
-      $SUDO yum install -y wget
-      ;;
-    zypper)
-      $SUDO zypper install -y wget
-      ;;
-    pkg)
-      pkg install -y wget
-      ;;
-    *)
-      echo "No supported package manager found."
-      exit 1
-      ;;
+  case $pm in
+    apt) $sudo_cmd apt update && $sudo_cmd apt install -y wget ;;
+    pacman) $sudo_cmd pacman -Sy --noconfirm wget ;;
+    dnf) $sudo_cmd dnf install -y wget ;;
+    yum) $sudo_cmd yum install -y wget ;;
+    zypper) $sudo_cmd zypper install -y wget ;;
+    pkg) pkg install -y wget ;;
+    *) echo "No supported package manager"; exit 1 ;;
   esac
+}
+
+install_deps() {
+  deps="$1"
+  [[ -z "$deps" ]] && return
+
+  pip_deps=""
+  if [[ "$deps" == *pip:* ]]; then
+    pip_deps="${deps#*pip:}"
+    deps="${deps%%pip:*}"
+  fi
+
+  pm=$(detect_pkg_manager)
+  sudo_cmd=""
+  command -v sudo >/dev/null 2>&1 && sudo_cmd="sudo"
+
+  case $pm in
+    apt) [[ -n "$deps" ]] && $sudo_cmd apt install -y $deps ;;
+    pacman) [[ -n "$deps" ]] && $sudo_cmd pacman -S --noconfirm $deps ;;
+    dnf) [[ -n "$deps" ]] && $sudo_cmd dnf install -y $deps ;;
+    yum) [[ -n "$deps" ]] && $sudo_cmd yum install -y $deps ;;
+    zypper) [[ -n "$deps" ]] && $sudo_cmd zypper install -y $deps ;;
+    pkg) [[ -n "$deps" ]] && pkg install -y $deps ;;
+  esac
+
+  [[ -n "$pip_deps" ]] && pip3 install $pip_deps
 }
 
 menu() {
   clear
   logo
 
-  echo "Projects:"
   for p in "${projects[@]}"; do
-    IFS="|" read -r key name url <<< "$p"
+    IFS="|" read -r key name url deps <<< "$p"
     echo "[$key] $name"
   done
   echo "[0] Exit"
   echo
 
   read -p "Choose project: " choice
-
-  if [[ "$choice" == "0" ]]; then
-    exit 0
-  fi
+  [[ "$choice" == "0" ]] && exit 0
 
   for p in "${projects[@]}"; do
-    IFS="|" read -r key name url <<< "$p"
+    IFS="|" read -r key name url deps <<< "$p"
     if [[ "$choice" == "$key" ]]; then
-      download_project "$name" "$url"
+      download_project "$name" "$url" "$deps"
       return
     fi
   done
 
-  echo "Invalid choice."
   sleep 1
   menu
 }
 
 download_project() {
-  local name="$1"
-  local url="$2"
+  name="$1"
+  url="$2"
+  deps="$3"
 
   install_wget
+  install_deps "$deps"
 
-  echo "Downloading $name..."
-  wget "$url"
+  wget -q --show-progress "$url"
+  [[ $? -ne 0 ]] && menu
 
-  if [[ $? -eq 0 ]]; then
-    echo "Download completed."
-  else
-    echo "Download failed."
-    read -p "Press Enter to return to menu..."
-    menu
-    return
-  fi
-
-  read -p "Wanna start $name? (y/n): " ans
-  if [[ "$ans" =~ ^[Yy]$ ]]; then
-    run_download "$url"
-  else
-    menu
-  fi
+  read -p "Start $name? (y/n): " ans
+  [[ "$ans" =~ ^[Yy]$ ]] && run_download "$url"
+  menu
 }
 
 run_download() {
-  local url="$1"
-  local file_name=$(basename "$url")
+  file="$(basename "$1")"
 
-  case "$file_name" in
-    *.sh)
-      bash "$file_name"
-      ;;
-    *.py)
-      python3 "$file_name"
-      ;;
-    *)
-      echo "Can't auto-run this file type."
-      echo "You can run it manually."
-      ;;
+  case "$file" in
+    *.sh) bash "$file" ;;
+    *.py) python3 "$file" ;;
   esac
 
-  read -p "Press Enter to return to menu..."
-  menu
+  read -p "Press Enter..."
 }
 
 menu
