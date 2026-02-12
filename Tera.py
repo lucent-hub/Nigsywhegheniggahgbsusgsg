@@ -6,7 +6,6 @@ import subprocess
 import urllib.request
 import importlib.util
 import re
-import shutil
 
 
 # Logo
@@ -36,8 +35,8 @@ projects = [
     },
     {
         "key": "3",
-        "name": "DDoS attack",
-        "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",  
+        "name": "Song attack",
+        "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
     }
 ]
 
@@ -45,16 +44,18 @@ projects = [
 # Ensure pip exists
 def ensure_pip():
     try:
-        import pip  # noqa
+        import pip
     except ImportError:
-        print("[!] pip not found. Installing pip...")
+        print("[!] Installing pip...")
         subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"])
 
 
 # Download file
 def download_file(url):
     filename = os.path.basename(url)
+
     try:
+        print(f"[+] Downloading {filename}...")
         urllib.request.urlretrieve(url, filename)
         return filename
     except Exception as e:
@@ -99,12 +100,13 @@ def is_installed(module):
 # Install missing modules
 def install_missing(modules):
     ensure_pip()
+
     missing = [m for m in modules if not is_installed(m)]
 
     if not missing:
         return
 
-    print(f"[+] Installing missing modules: {', '.join(missing)}")
+    print(f"[+] Installing: {', '.join(missing)}")
     subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade"] + missing)
 
 
@@ -137,15 +139,7 @@ def menu():
         selected = next((p for p in projects if p["key"] == choice), None)
 
         if selected:
-
-            # If test project (no URL)
-            if selected["url"] is None:
-                test_file = "test_script.py"
-                with open(test_file, "w") as f:
-                    f.write("print('Test project running successfully!')\n")
-                file = test_file
-            else:
-                file = download_file(selected["url"])
+            file = download_file(selected["url"])
 
             if file and file.endswith(".py"):
                 run = input("Start now? (y/n): ").lower()
@@ -154,7 +148,7 @@ def menu():
 
             input("\nPress Enter to continue...")
         else:
-            input("Invalid. Press Enter...")
+            input("Invalid choice. Press Enter...")
 
 
 if __name__ == "__main__":
