@@ -18,7 +18,7 @@ def logo():
     print("╰╯┃┃┣┻━┳━┳━━╮")
     print("╱╱┃┃┃┃━┫╭┫╭╮┃")
     print("╱╱┃┃┃┃━┫┃┃╭╮┃")
-    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.5")
+    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.6")
     print()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print()
@@ -47,10 +47,14 @@ projects = [
 
 
 # =========================
-# SYSTEM PREP (Chromebook / Termux Safe)
+# ENSURE PIP + CORE TOOLS
 # =========================
-def system_prepare():
-    # Upgrade pip tools safely
+def ensure_environment():
+    try:
+        import pip
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"])
+
     subprocess.run(
         [sys.executable, "-m", "pip", "install", "--upgrade",
          "pip", "setuptools", "wheel"],
@@ -60,25 +64,22 @@ def system_prepare():
 
 
 # =========================
-# ENSURE PIP EXISTS
+# FORCE DOWNLOAD (DELETE + UPDATE)
 # =========================
-def ensure_pip():
-    try:
-        import pip
-    except ImportError:
-        subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"])
-
-    system_prepare()
-
-
-# =========================
-# DOWNLOAD FILE
-# =========================
-def download_file(url):
+def force_download(url):
     filename = os.path.basename(url)
 
+    # Delete old file
+    if os.path.exists(filename):
+        try:
+            os.remove(filename)
+            print(f"[+] Deleted old {filename}")
+        except:
+            pass
+
+    # Download fresh copy
     try:
-        print(f"[+] Downloading {filename}...")
+        print(f"[+] Downloading fresh {filename}...")
         urllib.request.urlretrieve(url, filename)
         return filename
     except Exception as e:
@@ -108,8 +109,7 @@ def extract_imports(filename):
         "os", "sys", "re", "subprocess", "math",
         "json", "time", "random", "shutil",
         "urllib", "threading", "asyncio",
-        "platform", "socket", "hashlib",
-        "itertools", "collections"
+        "platform", "socket", "hashlib"
     }
 
     for m in matches:
@@ -127,10 +127,10 @@ def is_installed(module):
 
 
 # =========================
-# INSTALL MISSING MODULES
+# INSTALL MISSING
 # =========================
 def install_missing(modules):
-    ensure_pip()
+    ensure_environment()
 
     missing = [m for m in modules if not is_installed(m)]
 
@@ -145,7 +145,7 @@ def install_missing(modules):
 
 
 # =========================
-# RUN PYTHON FILE
+# RUN FILE
 # =========================
 def run_python_file(filename):
     modules = extract_imports(filename)
@@ -179,12 +179,11 @@ def menu():
         selected = next((p for p in projects if p["key"] == choice), None)
 
         if selected:
-            file = download_file(selected["url"])
+            file = force_download(selected["url"])
 
             if file and file.endswith(".py"):
-                run = input("Start now? (y/n): ").lower()
-                if run == "y":
-                    run_python_file(file)
+                print("[+] Running latest version...\n")
+                run_python_file(file)
 
             input("\nPress Enter to continue...")
         else:
