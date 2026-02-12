@@ -37,7 +37,7 @@ projects = [
     {
         "key": "3",
         "name": "DDoS attack",
-        "https://fevber-die-plz.vercel.app/Projects/dd-attack.py": None,  
+        "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",  
     }
 ]
 
