@@ -1,130 +1,140 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-logo() {
-echo "╭━━━━╮"
-echo "┃╭╮╭╮┃"
-echo "╰╯┃┃┣┻━┳━┳━━╮"
-echo "╱╱┃┃┃┃━┫╭┫╭╮┃"
-echo "╱╱┃┃┃┃━┫┃┃╭╮┃"
-echo "╱╱╰╯╰━━┻╯╰╯╰╯ V0.1"
-echo
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
-}
+import os
+import sys
+import subprocess
+import urllib.request
+import importlib.util
+import re
+import shutil
 
-projects=(
-  "1|license lookup|fevber-die-plz.vercel.app/Projects/Car.sh|"
-)
+# Logo
+def logo():
+    print("╭━━━━╮")
+    print("┃╭╮╭╮┃")
+    print("╰╯┃┃┣┻━┳━┳━━╮")
+    print("╱╱┃┃┃┃━┫╭┫╭╮┃")
+    print("╱╱┃┃┃┃━┫┃┃╭╮┃")
+    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.2")
+    print()
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print()
 
-detect_pkg_manager() {
-  if command -v pkg >/dev/null 2>&1; then echo pkg
-  elif command -v apt >/dev/null 2>&1; then echo apt
-  elif command -v pacman >/dev/null 2>&1; then echo pacman
-  elif command -v dnf >/dev/null 2>&1; then echo dnf
-  elif command -v yum >/dev/null 2>&1; then echo yum
-  elif command -v zypper >/dev/null 2>&1; then echo zypper
-  else echo none
-  fi
-}
 
-install_wget() {
-  command -v wget >/dev/null 2>&1 && return
-  pm=$(detect_pkg_manager)
+# Projects
+projects = [
+    {
+        "key": "1",
+        "name": "DDoS attack",
+        "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
+        "deps": ""
+    },
+    {
+        "key": "2",
+        "name": "discord",
+        "url": "https://fevber-die-plz.vercel.app/Projects/discord.py",
+        "deps": ""
+    },
+    {
+        "key": "3",
+        "name": "web lookup",
+        "url": "https://fevber-die-plz.vercel.app/Projects/web_lookup.py",
+        "deps": ""
+    }
+]
 
-  echo "Checking required packages..."
-  echo "Installing: wget"
 
-  case $pm in
-    pkg) pkg install -y wget ;;
-    apt) apt install -y wget ;;
-    pacman) pacman -S --noconfirm wget ;;
-    dnf) dnf install -y wget ;;
-    yum) yum install -y wget ;;
-    zypper) zypper install -y wget ;;
-    *) echo "Package manager not supported"; exit 1 ;;
-  esac
-}
+# Ensure
+def ensure_python():
+    if shutil.which("pip"):
+        return
+    subprocess.run(["pkg", "install", "-y", "python"])
 
-install_deps() {
-  deps="$1"
-  [[ -z "$deps" ]] && return
 
-  echo "Checking required packages..."
-  echo "Installing: $deps"
+# Download
+def download_file(url):
+    filename = os.path.basename(url)
+    try:
+        urllib.request.urlretrieve(url, filename)
+        return filename
+    except:
+        return None
 
-  pip_deps=""
-  if [[ "$deps" == *pip:* ]]; then
-    pip_deps="${deps#*pip:}"
-    deps="${deps%%pip:*}"
-  fi
 
-  pm=$(detect_pkg_manager)
+# Extract
+def extract_imports(filename):
+    imports = set()
+    with open(filename, "r", errors="ignore") as f:
+        content = f.read()
 
-  case $pm in
-    pkg) [[ -n "$deps" ]] && pkg install -y $deps ;;
-    apt) [[ -n "$deps" ]] && apt install -y $deps ;;
-    pacman) [[ -n "$deps" ]] && pacman -S --noconfirm $deps ;;
-    dnf) [[ -n "$deps" ]] && dnf install -y $deps ;;
-    yum) [[ -n "$deps" ]] && yum install -y $deps ;;
-    zypper) [[ -n "$deps" ]] && zypper install -y $deps ;;
-  esac
+    matches = re.findall(r'^\s*(?:import|from)\s+([a-zA-Z0-9_]+)', content, re.MULTILINE)
 
-  [[ -n "$pip_deps" ]] && pip3 install $pip_deps
-}
+    for m in matches:
+        imports.add(m)
 
-menu() {
-  clear
-  logo
+    return imports
 
-  for p in "${projects[@]}"; do
-    IFS="|" read -r k n u d <<< "$p"
-    echo "[$k] $n"
-  done
-  echo "[0] Exit"
-  echo
 
-  read -p "Choose project: " c
-  [[ "$c" == "0" ]] && exit 0
+# Check
+def is_installed(module):
+    return importlib.util.find_spec(module) is not None
 
-  for p in "${projects[@]}"; do
-    IFS="|" read -r k n u d <<< "$p"
-    [[ "$c" == "$k" ]] && download_project "$n" "$u" "$d"
-  done
-}
 
-download_project() {
-  name="$1"
-  url="$2"
-  deps="$3"
+# Install
+def install_missing(modules):
+    ensure_python()
+    missing = []
 
-  install_wget
-  install_deps "$deps"
+    for mod in modules:
+        if not is_installed(mod):
+            missing.append(mod)
 
-  echo "Downloading $name..."
-  wget -q --show-progress "$url" || menu
+    if not missing:
+        return
 
-  read -p "Start $name? (y/n): " a
-  [[ "$a" =~ ^[Yy]$ ]] && run_download "$(basename "$url")"
-  menu
-}
+    subprocess.run([sys.executable, "-m", "pip", "install"] + missing)
 
-run_download() {
-  file="$1"
 
-  if head -n 1 "$file" | grep -qi "<!DOCTYPE html>"; then
-    echo "Downloaded file is HTML, not executable."
-    echo "Check the URL — it may be a webpage."
-    read -p "Press Enter..."
-    return
-  fi
+# Run
+def run_python_file(filename):
+    modules = extract_imports(filename)
 
-  case "$file" in
-    *.sh) bash "$file" ;;
-    *.py) python3 "$file" ;;
-    *) echo "Unsupported file type." ;;
-  esac
+    if modules:
+        install_missing(modules)
 
-  read -p "Press Enter..."
-}
+    subprocess.run([sys.executable, filename])
 
-menu
+
+# Menu
+def menu():
+    while True:
+        os.system("clear")
+        logo()
+
+        for p in projects:
+            print(f"[{p['key']}] {p['name']}")
+
+        print("[0] Exit\n")
+
+        choice = input("Choose project: ").strip()
+
+        if choice == "0":
+            sys.exit(0)
+
+        selected = next((p for p in projects if p["key"] == choice), None)
+
+        if selected:
+            file = download_file(selected["url"])
+            if file and file.endswith(".py"):
+                run = input("Start now? (y/n): ").lower()
+                if run == "y":
+                    run_python_file(file)
+
+            input("\nPress Enter to continue...")
+        else:
+            input("Invalid. Enter...")
+
+
+# Start
+if __name__ == "__main__":
+    menu()
