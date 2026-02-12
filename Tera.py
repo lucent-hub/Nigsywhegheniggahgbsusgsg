@@ -40,7 +40,7 @@ projects = [
     },
     {
         "key": "3",
-        "name": "Song attack",
+        "name": "DDos attack",
         "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
     }
 ]
