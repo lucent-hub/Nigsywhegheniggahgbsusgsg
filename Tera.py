@@ -6,22 +6,27 @@ import subprocess
 import urllib.request
 import importlib.util
 import re
+import platform
 
 
-# Logo
+# =========================
+# LOGO
+# =========================
 def logo():
     print("╭━━━━╮")
     print("┃╭╮╭╮┃")
     print("╰╯┃┃┣┻━┳━┳━━╮")
     print("╱╱┃┃┃┃━┫╭┫╭╮┃")
     print("╱╱┃┃┃┃━┫┃┃╭╮┃")
-    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.3")
+    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.5")
     print()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print()
 
 
-# Projects
+# =========================
+# PROJECTS
+# =========================
 projects = [
     {
         "key": "1",
@@ -41,16 +46,34 @@ projects = [
 ]
 
 
-# Ensure pip exists
+# =========================
+# SYSTEM PREP (Chromebook / Termux Safe)
+# =========================
+def system_prepare():
+    # Upgrade pip tools safely
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--upgrade",
+         "pip", "setuptools", "wheel"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
+
+# =========================
+# ENSURE PIP EXISTS
+# =========================
 def ensure_pip():
     try:
         import pip
     except ImportError:
-        print("[!] Installing pip...")
         subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"])
 
+    system_prepare()
 
-# Download file
+
+# =========================
+# DOWNLOAD FILE
+# =========================
 def download_file(url):
     filename = os.path.basename(url)
 
@@ -63,7 +86,9 @@ def download_file(url):
         return None
 
 
-# Extract imports
+# =========================
+# EXTRACT IMPORTS
+# =========================
 def extract_imports(filename):
     imports = set()
 
@@ -79,25 +104,31 @@ def extract_imports(filename):
         re.MULTILINE
     )
 
-    builtins = {
+    stdlib = {
         "os", "sys", "re", "subprocess", "math",
         "json", "time", "random", "shutil",
-        "urllib", "threading", "asyncio"
+        "urllib", "threading", "asyncio",
+        "platform", "socket", "hashlib",
+        "itertools", "collections"
     }
 
     for m in matches:
-        if m not in builtins:
+        if m not in stdlib:
             imports.add(m)
 
     return imports
 
 
-# Check installed
+# =========================
+# CHECK MODULE
+# =========================
 def is_installed(module):
     return importlib.util.find_spec(module) is not None
 
 
-# Install missing modules
+# =========================
+# INSTALL MISSING MODULES
+# =========================
 def install_missing(modules):
     ensure_pip()
 
@@ -107,10 +138,15 @@ def install_missing(modules):
         return
 
     print(f"[+] Installing: {', '.join(missing)}")
-    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade"] + missing)
+
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--upgrade"] + missing
+    )
 
 
-# Run file
+# =========================
+# RUN PYTHON FILE
+# =========================
 def run_python_file(filename):
     modules = extract_imports(filename)
 
@@ -120,11 +156,15 @@ def run_python_file(filename):
     subprocess.run([sys.executable, filename])
 
 
-# Menu
+# =========================
+# MENU
+# =========================
 def menu():
     while True:
         os.system("clear" if os.name != "nt" else "cls")
         logo()
+
+        print(f"System: {platform.system()} {platform.release()}\n")
 
         for p in projects:
             print(f"[{p['key']}] {p['name']}")
@@ -151,5 +191,8 @@ def menu():
             input("Invalid choice. Press Enter...")
 
 
+# =========================
+# START
+# =========================
 if __name__ == "__main__":
     menu()
