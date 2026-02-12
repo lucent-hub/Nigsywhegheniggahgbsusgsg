@@ -35,11 +35,16 @@ projects = [
     },
     {
         "key": "2",
+        "name": "test",
+        "url": "https://fevber-die-plz.vercel.app/Projects/Test.py",
+    },
+    {
+        "key": "3",
         "name": "web lookup",
         "url": "https://fevber-die-plz.vercel.app/Projects/web_lookup.py",
     },
     {
-        "key": "3",
+        "key": "4",
         "name": "DDos attack",
         "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
     }
