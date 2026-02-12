@@ -8,6 +8,7 @@ import importlib.util
 import re
 import shutil
 
+
 # Logo
 def logo():
     print("╭━━━━╮")
@@ -15,7 +16,7 @@ def logo():
     print("╰╯┃┃┣┻━┳━┳━━╮")
     print("╱╱┃┃┃┃━┫╭┫╭╮┃")
     print("╱╱┃┃┃┃━┫┃┃╭╮┃")
-    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.2")
+    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.3")
     print()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print()
@@ -25,77 +26,89 @@ def logo():
 projects = [
     {
         "key": "1",
-        "name": "DDoS attack",
-        "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
-        "deps": ""
+        "name": "discord",
+        "url": "https://fevber-die-plz.vercel.app/Projects/discord.py",
     },
     {
         "key": "2",
-        "name": "discord",
-        "url": "https://fevber-die-plz.vercel.app/Projects/discord.py",
-        "deps": ""
+        "name": "web lookup",
+        "url": "https://fevber-die-plz.vercel.app/Projects/web_lookup.py",
     },
     {
         "key": "3",
-        "name": "web lookup",
-        "url": "https://fevber-die-plz.vercel.app/Projects/web_lookup.py",
-        "deps": ""
+        "name": "DDoS attack",
+        "https://fevber-die-plz.vercel.app/Projects/dd-attack.py": None,  
     }
 ]
 
 
-# Ensure
-def ensure_python():
-    if shutil.which("pip"):
-        return
-    subprocess.run(["pkg", "install", "-y", "python"])
+# Ensure pip exists
+def ensure_pip():
+    try:
+        import pip  # noqa
+    except ImportError:
+        print("[!] pip not found. Installing pip...")
+        subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"])
 
 
-# Download
+# Download file
 def download_file(url):
     filename = os.path.basename(url)
     try:
         urllib.request.urlretrieve(url, filename)
         return filename
-    except:
+    except Exception as e:
+        print(f"[!] Download failed: {e}")
         return None
 
 
-# Extract
+# Extract imports
 def extract_imports(filename):
     imports = set()
-    with open(filename, "r", errors="ignore") as f:
-        content = f.read()
 
-    matches = re.findall(r'^\s*(?:import|from)\s+([a-zA-Z0-9_]+)', content, re.MULTILINE)
+    try:
+        with open(filename, "r", errors="ignore") as f:
+            content = f.read()
+    except:
+        return imports
+
+    matches = re.findall(
+        r'^\s*(?:import|from)\s+([a-zA-Z0-9_]+)',
+        content,
+        re.MULTILINE
+    )
+
+    builtins = {
+        "os", "sys", "re", "subprocess", "math",
+        "json", "time", "random", "shutil",
+        "urllib", "threading", "asyncio"
+    }
 
     for m in matches:
-        imports.add(m)
+        if m not in builtins:
+            imports.add(m)
 
     return imports
 
 
-# Check
+# Check installed
 def is_installed(module):
     return importlib.util.find_spec(module) is not None
 
 
-# Install
+# Install missing modules
 def install_missing(modules):
-    ensure_python()
-    missing = []
-
-    for mod in modules:
-        if not is_installed(mod):
-            missing.append(mod)
+    ensure_pip()
+    missing = [m for m in modules if not is_installed(m)]
 
     if not missing:
         return
 
-    subprocess.run([sys.executable, "-m", "pip", "install"] + missing)
+    print(f"[+] Installing missing modules: {', '.join(missing)}")
+    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade"] + missing)
 
 
-# Run
+# Run file
 def run_python_file(filename):
     modules = extract_imports(filename)
 
@@ -108,7 +121,7 @@ def run_python_file(filename):
 # Menu
 def menu():
     while True:
-        os.system("clear")
+        os.system("clear" if os.name != "nt" else "cls")
         logo()
 
         for p in projects:
@@ -124,7 +137,16 @@ def menu():
         selected = next((p for p in projects if p["key"] == choice), None)
 
         if selected:
-            file = download_file(selected["url"])
+
+            # If test project (no URL)
+            if selected["url"] is None:
+                test_file = "test_script.py"
+                with open(test_file, "w") as f:
+                    f.write("print('Test project running successfully!')\n")
+                file = test_file
+            else:
+                file = download_file(selected["url"])
+
             if file and file.endswith(".py"):
                 run = input("Start now? (y/n): ").lower()
                 if run == "y":
@@ -132,9 +154,8 @@ def menu():
 
             input("\nPress Enter to continue...")
         else:
-            input("Invalid. Enter...")
+            input("Invalid. Press Enter...")
 
 
-# Start
 if __name__ == "__main__":
     menu()
