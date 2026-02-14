@@ -18,7 +18,7 @@ def logo():
     print("╰╯┃┃┣┻━┳━┳━━╮")
     print("╱╱┃┃┃┃━┫╭┫╭╮┃")
     print("╱╱┃┃┃┃━┫┃┃╭╮┃")
-    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.6")
+    print("╱╱╰╯╰━━┻╯╰╯╰╯ V0.2")
     print()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print()
@@ -35,8 +35,8 @@ projects = [
     },
     {
         "key": "2",
-        "name": "test",
-        "url": "https://fevber-die-plz.vercel.app/Projects/Test.py",
+        "name": "DDos attack",
+        "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
     },
     {
         "key": "3",
@@ -45,8 +45,8 @@ projects = [
     },
     {
         "key": "4",
-        "name": "DDos attack",
-        "url": "https://fevber-die-plz.vercel.app/Projects/dd-attack.py",
+        "name": "test",
+        "url": "https://fevber-die-plz.vercel.app/Projects/test.py",
     }
 ]
 
@@ -170,6 +170,7 @@ def menu():
         logo()
 
         print(f"System: {platform.system()} {platform.release()}\n")
+        print("lovely day")
 
         for p in projects:
             print(f"[{p['key']}] {p['name']}")
