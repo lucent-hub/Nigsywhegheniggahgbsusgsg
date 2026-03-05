@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/keys", "destination": "/api/keys" },
-    { "source": "/count", "destination": "/api/count" },
-    { "source": "/status", "destination": "/api/status" }
-  ]
-}
