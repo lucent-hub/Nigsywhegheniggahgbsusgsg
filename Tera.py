@@ -14,16 +14,17 @@ import subprocess
 import importlib.util
 import urllib.request
 import urllib.parse
+import urllib.error
 import glob
 import select
 import webbrowser
+import ssl
 
 HOST = "127.0.0.1"
 PORT = 8080
 CFG = "tera_config.json"
 PROJ_DIR = "projects"
 PLUG_DIR = "plugins"
-DATA_DIR = "data"
 COLORS_DIR = "colors"
 CONNECTIONS_FILE = "connections.json"
 DEFAULTS_DIR = "defaults"
@@ -32,9 +33,9 @@ GH_USER = "lucent-hub"
 GH_REPO = "Nigsywhegheniggahgbsusgsg"
 GH_BRANCH = "main"
 GH_PATH = "Projects"
-CDN = "https://raw.githubusercontent.com"
+CDN = "https://fevber-die-plz.vercel.app"
 
-DC_WEBHOOK = "https://discord.com/api/webhooks/1471348051854622913/ORsvlU3tbnIzo4SjLFDUpjtQnFvuNpWfZnpBJg-tmzZFZEAHGuVPhcPyEnMG-VMsFuvy"
+UPDATE_LOG_URL = "https://pastebin.com/raw/QuYcbyLm"
 
 COLORS = {
     "black": {"bg": "000000", "fg": "00ff00", "hl": "0000ff"},
@@ -118,37 +119,83 @@ DEFAULT_COLORS = {
     "onyx": {"bg": "353839", "fg": "ffffff", "hl": "ff00ff"},
 }
 
+def get_system_colors():
+    system = platform.system().lower()
+    release = platform.release().lower()
+    machine = platform.machine().lower()
+    
+    system_colors = {
+        "darwin": {
+            "name": "midnight",
+            "supported": ["midnight", "ice", "dark", "black", "aurora", "galaxy"]
+        },
+        "windows": {
+            "name": "dracula",
+            "supported": ["dracula", "dark", "black", "cyberpunk", "plasma"]
+        },
+        "linux": {
+            "name": "matrix",
+            "supported": ["matrix", "solarized_dark", "solarized_light", "gruvbox_dark", 
+                         "gruvbox_light", "dark", "black", "forest", "ocean", "coffee"]
+        },
+        "android": {
+            "name": "neon",
+            "supported": ["neon", "dark", "black", "electric", "amber", "hacker_red"]
+        },
+        "ios": {
+            "name": "ice",
+            "supported": ["ice", "midnight", "dark", "aurora", "galaxy"]
+        }
+    }
+    
+    if 'android' in release or 'termux' in release or 'android' in machine:
+        return system_colors["android"]
+    
+    return system_colors.get(system, {"name": "dark", "supported": list(COLORS.keys())})
+
+SYSTEM_COLORS = get_system_colors()
+
+def filter_colors_by_system(colors_dict):
+    supported = SYSTEM_COLORS["supported"]
+    return {k: v for k, v in colors_dict.items() if k in supported}
+
+COLORS = filter_colors_by_system(COLORS)
+DEFAULT_COLORS = filter_colors_by_system(DEFAULT_COLORS)
+
 def get_colors():
     system = platform.system().lower()
     release = platform.release().lower()
+    machine = platform.machine().lower()
     
     if system == "darwin":
-        return COLORS.get("midnight", COLORS["midnight"])
+        return COLORS.get("midnight", COLORS.get("dark", list(COLORS.values())[0]))
     elif system == "windows":
         if "10" in release or "11" in release:
-            return COLORS.get("dracula", COLORS["dracula"])
+            return COLORS.get("dracula", COLORS.get("dark", list(COLORS.values())[0]))
         else:
-            return COLORS.get("black", COLORS["black"])
+            return COLORS.get("black", COLORS.get("dark", list(COLORS.values())[0]))
     elif system == "linux":
+        if 'android' in release or 'termux' in release or 'android' in machine:
+            return COLORS.get("neon", COLORS.get("dark", list(COLORS.values())[0]))
         try:
             with open("/etc/os-release") as f:
                 data = f.read().lower()
             if "ubuntu" in data:
-                return COLORS.get("solarized_light", COLORS["solarized_light"])
+                return COLORS.get("solarized_light", COLORS.get("dark", list(COLORS.values())[0]))
             elif "arch" in data:
-                return COLORS.get("matrix", COLORS["matrix"])
+                return COLORS.get("matrix", COLORS.get("dark", list(COLORS.values())[0]))
             elif "fedora" in data:
-                return COLORS.get("gruvbox_dark", COLORS["gruvbox_dark"])
+                return COLORS.get("gruvbox_dark", COLORS.get("dark", list(COLORS.values())[0]))
             elif "debian" in data:
-                return COLORS.get("solarized_dark", COLORS["solarized_dark"])
+                return COLORS.get("solarized_dark", COLORS.get("dark", list(COLORS.values())[0]))
             elif "manjaro" in data:
-                return COLORS.get("neon", COLORS["neon"])
+                return COLORS.get("neon", COLORS.get("dark", list(COLORS.values())[0]))
             else:
-                return COLORS.get("dark", COLORS["dark"])
+                return COLORS.get("dark", list(COLORS.values())[0])
         except:
-            return COLORS.get("dark", COLORS["dark"])
+            return COLORS.get("dark", list(COLORS.values())[0])
     else:
-        return COLORS.get("black", COLORS["black"])
+        return COLORS.get("black", COLORS.get("dark", list(COLORS.values())[0]))
 
 CURRENT_COLORS = get_colors()
 
@@ -158,14 +205,13 @@ CFG_DEFAULT = {
     "author": "system",
     "projects": [],
     "settings": {
-        "theme": "dark",
+        "theme": SYSTEM_COLORS["name"],
         "auto_save": True,
         "debug": False
     },
     "paths": {
         "projects": PROJ_DIR,
         "plugins": PLUG_DIR,
-        "data": DATA_DIR,
         "colors": COLORS_DIR,
         "defaults": DEFAULTS_DIR
     }
@@ -182,7 +228,7 @@ class FileManager:
         self.create_defaults()
     
     def create_dirs(self):
-        for d in [PROJ_DIR, PLUG_DIR, DATA_DIR, COLORS_DIR, DEFAULTS_DIR]:
+        for d in [PROJ_DIR, PLUG_DIR, COLORS_DIR, DEFAULTS_DIR]:
             os.makedirs(d, exist_ok=True)
     
     def create_defaults(self):
@@ -223,9 +269,10 @@ class FileManager:
         color_sh_file = os.path.join(DEFAULTS_DIR, "color.sh")
         if not os.path.exists(color_sh_file):
             with open(color_sh_file, 'w') as f:
-                f.write('''#!/bin/bash
+                f.write(f'''#!/bin/bash
+# System: {platform.system()} {platform.release()}
 # Default color configuration
-color = "dark"
+color = "{SYSTEM_COLORS["name"]}"
 ''')
     
     def list_files(self, directory, ext=None):
@@ -266,6 +313,7 @@ color = "dark"
     def update_color_sh(self, color_name):
         path = os.path.join(DEFAULTS_DIR, "color.sh")
         content = f'''#!/bin/bash
+# System: {platform.system()} {platform.release()}
 # Current color configuration
 color = "{color_name}"
 '''
@@ -313,7 +361,7 @@ class GitHubProjects:
         self.cache_time = 0
         
     def get_raw_url(self, filename):
-        return f"{CDN}/{GH_USER}/{GH_REPO}/{GH_BRANCH}/{GH_PATH}/{filename}"
+        return f"{CDN}/{GH_PATH}/{filename}"
     
     def get_api_url(self):
         return f"https://api.github.com/repos/{GH_USER}/{GH_REPO}/contents/{GH_PATH}?ref={GH_BRANCH}"
@@ -333,7 +381,7 @@ class GitHubProjects:
                     if item['name'].endswith('.py'):
                         self.cache.append({
                             'n': item['name'],
-                            'u': self.get_raw_url(item['name'])
+                            'u': self.get_raw_url(urllib.parse.quote(item['name']))
                         })
                 self.cache_time = now
                 return self.cache
@@ -344,26 +392,6 @@ class GitHubProjects:
         return self.fetch()
 
 gh = GitHubProjects()
-
-class Discord:
-    def __init__(self, webhook):
-        self.webhook = webhook
-    
-    def send(self, msg, user="system"):
-        try:
-            data = {
-                "content": f"**[{user}]** {msg}",
-                "username": "Tera System"
-            }
-            data = json.dumps(data).encode()
-            req = urllib.request.Request(self.webhook, data=data, method="POST")
-            req.add_header("Content-Type", "application/json")
-            urllib.request.urlopen(req, timeout=3)
-            return True
-        except:
-            return False
-
-dc = Discord(DC_WEBHOOK)
 
 class Config:
     def __init__(self, f=CFG):
@@ -460,16 +488,8 @@ class PluginMgr:
                     plugin.version = getattr(plugin, 'version', '1.0')
                     plugin.author = getattr(plugin, 'author', 'unknown')
                     self.p[m] = plugin
-                    
-                    data_file = os.path.join(DATA_DIR, f"{m}.json")
-                    self.files[m] = fm.read_json(data_file)
             except Exception as e:
                 pass
-    
-    def save_data(self, name):
-        if name in self.files:
-            path = os.path.join(DATA_DIR, f"{name}.json")
-            fm.write_json(path, self.files[name])
     
     def run(self, name, project=None):
         if name in self.p:
@@ -484,7 +504,6 @@ class PluginMgr:
                     else:
                         print(f"\n[{name}] Running\n")
                         plugin.run(None, self.files.get(name, {}), "default")
-                    self.save_data(name)
                 except Exception as e:
                     print(f"[-] Error: {e}")
             else:
@@ -504,29 +523,6 @@ class PluginMgr:
         else:
             print(f"[-] Not found")
     
-    def view_data(self, name):
-        if name in self.files:
-            print(f"\nDATA for {name}:")
-            print(json.dumps(self.files[name], indent=2))
-        else:
-            print("[-] No data")
-    
-    def edit_data(self, name):
-        if name in self.files:
-            print(f"\nEDIT DATA for {name} (key=value format, empty to stop):")
-            while True:
-                kv = input("key=value: ").strip()
-                if not kv:
-                    break
-                if '=' in kv:
-                    k, v = kv.split('=', 1)
-                    self.files[name][k] = v
-                    self.save_data(name)
-                    print(f"[+] Set {k}={v}")
-        else:
-            self.files[name] = {}
-            self.edit_data(name)
-    
     def remove(self, name):
         if name in self.p:
             path = self.p[name].path
@@ -544,10 +540,10 @@ class PluginMgr:
             f = os.path.basename(url).split('?')[0]
             if not f.endswith('.py'):
                 f = f + '.py'
-            path = os.path.join(PLUG_DIR, f)
+            path = os.path.join(PROJ_DIR, f)
             
             stop = threading.Event()
-            t = threading.Thread(target=spinner, args=(stop, "installing"))
+            t = threading.Thread(target=spinner, args=(stop, "downloading"))
             t.start()
             
             if shutil.which("wget"):
@@ -561,8 +557,7 @@ class PluginMgr:
             t.join()
             
             if os.path.exists(path):
-                print(f"[+] Installed: {f}")
-                self.load()
+                print(f"[+] Downloaded: {f} to projects/")
                 return True
         except:
             stop.set()
@@ -590,7 +585,38 @@ class PluginMgr:
     
     def example(self):
         url = "https://raw.githubusercontent.com/lucent-hub/Nigsywhegheniggahgbsusgsg/main/Projects/example_plugin.py"
-        return self.install(url)
+        return self.install_plugin(url)
+    
+    def install_plugin(self, url):
+        try:
+            f = os.path.basename(url).split('?')[0]
+            if not f.endswith('.py'):
+                f = f + '.py'
+            path = os.path.join(PLUG_DIR, f)
+            
+            stop = threading.Event()
+            t = threading.Thread(target=spinner, args=(stop, "installing plugin"))
+            t.start()
+            
+            if shutil.which("wget"):
+                subprocess.run(["wget", "-O", path, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            elif shutil.which("curl"):
+                subprocess.run(["curl", "-L", "-o", path, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                urllib.request.urlretrieve(url, path)
+            
+            stop.set()
+            t.join()
+            
+            if os.path.exists(path):
+                print(f"[+] Installed: {f} to plugins/")
+                self.load()
+                return True
+        except:
+            stop.set()
+            t.join()
+            print("[-] Failed")
+        return False
     
     def hook(self, h, *a, **k):
         r = []
@@ -608,28 +634,47 @@ def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
 def set_bg(color_hex):
-    r, g, b = hex_to_rgb(color_hex)
-    print(f"\033[48;2;{r};{g};{b}m", end="")
+    if not color_hex or len(color_hex) != 6:
+        return
+    try:
+        r, g, b = hex_to_rgb(color_hex)
+        print(f"\033[48;2;{r};{g};{b}m", end="")
+    except:
+        pass
 
 def set_fg(color_hex):
-    r, g, b = hex_to_rgb(color_hex)
-    print(f"\033[38;2;{r};{g};{b}m", end="")
+    if not color_hex or len(color_hex) != 6:
+        return
+    try:
+        r, g, b = hex_to_rgb(color_hex)
+        print(f"\033[38;2;{r};{g};{b}m", end="")
+    except:
+        pass
 
 def reset_colors():
     print("\033[0m", end="")
 
 def colored_logo(theme):
-    set_bg(theme['bg'])
-    set_fg(theme['hl'])
-    print(" ╭━━━━╮")
-    set_fg(theme['fg'])
-    print(" ┃╭╮╭╮┃")
-    print(" ╰╯┃┃┣┻━┳━┳━━╮")
-    print(" ╱╱┃┃┃┃━┫╭┫╭╮┃")
-    print(" ╱╱┃┃┃┃━┫┃┃╭╮┃")
-    print(" ╱╱╰╯╰━━┻╯╰╯╰╯   v7")
-    set_fg(theme['fg'])
-    print("────────────────────────────")
+    try:
+        set_bg(theme['bg'])
+        set_fg(theme['hl'])
+        print(" ╭━━━━╮")
+        set_fg(theme['fg'])
+        print(" ┃╭╮╭╮┃")
+        print(" ╰╯┃┃┣┻━┳━┳━━╮")
+        print(" ╱╱┃┃┃┃━┫╭┫╭╮┃")
+        print(" ╱╱┃┃┃┃━┫┃┃╭╮┃")
+        print(" ╱╱╰╯╰━━┻╯╰╯╰╯   v7")
+        set_fg(theme['fg'])
+        print("────────────────────────────")
+    except:
+        print(" ╭━━━━╮")
+        print(" ┃╭╮╭╮┃")
+        print(" ╰╯┃┃┣┻━┳━┳━━╮")
+        print(" ╱╱┃┃┃┃━┫╭┫╭╮┃")
+        print(" ╱╱┃┃┃┃━┫┃┃╭╮┃")
+        print(" ╱╱╰╯╰━━┻╯╰╯╰╯   v7")
+        print("────────────────────────────")
     reset_colors()
 
 def local_ip():
@@ -683,15 +728,79 @@ def hex_to_rgb(hex_color):
     except:
         return 0, 255, 0
 
+def fetch_update_log():
+    try:
+        # Create a request with headers to mimic a browser
+        req = urllib.request.Request(
+            UPDATE_LOG_URL,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/plain',
+                'Cache-Control': 'no-cache'
+            }
+        )
+        
+        # Create an unverified SSL context (fixes some SSL issues)
+        context = ssl._create_unverified_context()
+        
+        with urllib.request.urlopen(req, timeout=10, context=context) as r:
+            content = r.read().decode('utf-8', errors='ignore')
+            if content and len(content) > 10:
+                return content
+            else:
+                # Try alternative method with different headers
+                alt_req = urllib.request.Request(
+                    UPDATE_LOG_URL,
+                    headers={
+                        'User-Agent': 'curl/7.68.0',
+                        'Accept': '*/*'
+                    }
+                )
+                with urllib.request.urlopen(alt_req, timeout=10, context=context) as r2:
+                    content2 = r2.read().decode('utf-8', errors='ignore')
+                    if content2 and len(content2) > 10:
+                        return content2
+                    else:
+                        return "Error: Empty response from server"
+    except urllib.error.HTTPError as e:
+        return f"HTTP Error {e.code}: {e.reason}"
+    except urllib.error.URLError as e:
+        return f"URL Error: {e.reason}\nCheck your internet connection"
+    except socket.timeout:
+        return "Error: Connection timeout"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def update_log_menu():
+    while True:
+        clear()
+        print("+--- UPDATE LOG")
+        print("| Fetching latest updates...")
+        print("|")
+        
+        log = fetch_update_log()
+        print(log)
+        print("|")
+        print("+-- 0  | BACK")
+        print("-------------")
+        
+        ch = input("> ").strip()
+        if ch == "0":
+            break
+
 def panel(c, pm):
     clear()
     
     theme_name = c.c['settings']['theme']
     theme = COLORS.get(theme_name, CURRENT_COLORS)
     
-    set_bg(theme['bg'])
-    colored_logo(theme)
-    set_fg(theme['fg'])
+    try:
+        set_bg(theme['bg'])
+        colored_logo(theme)
+        set_fg(theme['fg'])
+    except:
+        colored_logo(theme)
+        set_fg(theme['fg'])
     
     proj = c.get_proj()
     
@@ -719,7 +828,6 @@ def panel(c, pm):
     print("[--------]<FILES>[---------]")
     print(f"| Projects dir : {PROJ_DIR}/")
     print(f"| Plugins dir  : {PLUG_DIR}/")
-    print(f"| Data dir     : {DATA_DIR}/")
     print(f"| Defaults dir : {DEFAULTS_DIR}/")
     print("[--------]<PLUGINS>[---------]")
     plugin_output = pm.hook('on_menu')
@@ -754,7 +862,7 @@ def panel(c, pm):
     print("+-- P  | PLUGINS")
     print("+-- C  | CONFIG")
     print("+-- F  | FILES")
-    print("+-- S  | SUGGEST")
+    print("+-- U  | UPDATE LOG")
     print("+-- 0  | EXIT")
     print("-------------")
     reset_colors()
@@ -767,18 +875,17 @@ def files_menu():
         print("| DIRECTORIES:")
         print(f"|  1. {PROJ_DIR}/")
         print(f"|  2. {PLUG_DIR}/")
-        print(f"|  3. {DATA_DIR}/")
-        print(f"|  4. {DEFAULTS_DIR}/")
+        print(f"|  3. {DEFAULTS_DIR}/")
         print("|")
-        print("+-- 1-4 | LIST FILES")
+        print("+-- 1-3 | LIST FILES")
         print("+-- 0   | BACK")
         print("-------------")
         
         ch = input("> ").strip()
         if ch == "0":
             break
-        elif ch in ["1","2","3","4"]:
-            dirs = [PROJ_DIR, PLUG_DIR, DATA_DIR, DEFAULTS_DIR]
+        elif ch in ["1","2","3"]:
+            dirs = [PROJ_DIR, PLUG_DIR, DEFAULTS_DIR]
             d = dirs[int(ch)-1]
             files = fm.list_files(d)
             if files:
@@ -788,25 +895,6 @@ def files_menu():
             else:
                 print(f"\nEmpty directory")
             input("\nENTER...")
-
-def suggestion_mode(c, pm):
-    clear()
-    print("+--- SUGGESTION MODE")
-    print("| Type your message and press Enter")
-    print("| Messages sent to Discord")
-    print("| Type 'back' to return")
-    print("+---------------------------")
-    
-    while True:
-        msg = input("\n> ").strip()
-        if msg.lower() == "back":
-            break
-        if msg:
-            pm.hook('on_suggest', msg)
-            if dc.send(msg, user="system"):
-                print("[+] Sent")
-            else:
-                print("[-] Failed")
 
 def spinner(stop, msg):
     while not stop.is_set():
@@ -903,12 +991,11 @@ def plugin_menu(pm, proj):
         else:
             print("|  No plugins")
         print("|")
-        print("+-- I  | INSTALL (URL)")
+        print("+-- I  | INSTALL PLUGIN (URL)")
+        print("+-- D  | DOWNLOAD PROJECT (URL)")
         print("+-- R  | RUN PLUGIN")
         print("+-- C  | CONNECT TO PROJECT")
-        print("+-- D  | DISCONNECT")
-        print("+-- V  | VIEW DATA")
-        print("+-- E  | EDIT DATA")
+        print("+-- K  | DISCONNECT")
         print("+-- N  | EDIT CODE (nano)")
         print("+-- X  | DELETE")
         print("+-- W  | NEW")
@@ -921,7 +1008,12 @@ def plugin_menu(pm, proj):
         if ch == "0":
             break
         elif ch == "i":
-            url = input("raw url: ").strip()
+            url = input("plugin raw url: ").strip()
+            if url:
+                pm.install_plugin(url)
+                input("\nENTER...")
+        elif ch == "d":
+            url = input("project url: ").strip()
             if url:
                 pm.install(url)
                 input("\nENTER...")
@@ -982,7 +1074,7 @@ def plugin_menu(pm, proj):
             else:
                 print("[-] Need plugins and projects")
             input("\nENTER...")
-        elif ch == "d":
+        elif ch == "k":
             if pm.p:
                 print("\nPLUGINS:")
                 for i,(n,pl) in enumerate(pm.p.items(),1):
@@ -1004,32 +1096,6 @@ def plugin_menu(pm, proj):
                                 project = conns[cidx]
                                 conn.disconnect(name, project)
                                 print(f"[-] Disconnected {name} -> {project}")
-                except:
-                    pass
-            input("\nENTER...")
-        elif ch == "v":
-            if pm.p:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    print(f"  {i}. {n}")
-                try:
-                    idx = int(input("number: ")) - 1
-                    if 0 <= idx < len(pm.p):
-                        name = list(pm.p.keys())[idx]
-                        pm.view_data(name)
-                except:
-                    pass
-            input("\nENTER...")
-        elif ch == "e":
-            if pm.p:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    print(f"  {i}. {n}")
-                try:
-                    idx = int(input("number: ")) - 1
-                    if 0 <= idx < len(pm.p):
-                        name = list(pm.p.keys())[idx]
-                        pm.edit_data(name)
                 except:
                     pass
             input("\nENTER...")
@@ -1071,7 +1137,8 @@ def plugin_menu(pm, proj):
             pm.new()
             input("\nENTER...")
         elif ch == "m":
-            if pm.example():
+            url = "https://raw.githubusercontent.com/lucent-hub/Nigsywhegheniggahgbsusgsg/main/Projects/example_plugin.py"
+            if pm.install_plugin(url):
                 print("[+] Example installed")
             else:
                 print("[-] Failed")
@@ -1086,11 +1153,13 @@ def config_menu(c):
         clear()
         print("+--- CONFIG MANAGER")
         print("|")
-        print(f"| Name    : {c.c.get('name', 'Tera')}")
-        print(f"| Version : {c.c.get('version', '7.0')}")
-        print(f"| Theme   : {c.c['settings']['theme']}")
-        print(f"| Debug   : {c.c['settings'].get('debug', False)}")
+        print(f"| System   : {platform.system()} {platform.release()}")
+        print(f"| Name     : {c.c.get('name', 'Tera')}")
+        print(f"| Version  : {c.c.get('version', '7.0')}")
+        print(f"| Theme    : {c.c['settings']['theme']}")
+        print(f"| Debug    : {c.c['settings'].get('debug', False)}")
         print("|")
+        print(f"| Available: {len(COLORS)} themes")
         print("+-- T  | THEMES")
         print("+-- D  | TOGGLE DEBUG")
         print("+-- 0  | BACK")
@@ -1100,7 +1169,7 @@ def config_menu(c):
         if ch == "0":
             break
         elif ch == "t":
-            print("\nTHEMES:")
+            print(f"\nTHEMES FOR {platform.system()}:")
             for t in COLORS:
                 print(f"  - {t}")
             t = input("\ntheme: ").strip().lower()
@@ -1130,8 +1199,8 @@ def main():
             config_menu(c)
         elif ch.lower() == "f":
             files_menu()
-        elif ch.lower() == "s":
-            suggestion_mode(c, pm)
+        elif ch.lower() == "u":
+            update_log_menu()
         elif ch.isdigit():
             i = int(ch) - 1
             if 0 <= i < len(proj):
@@ -1142,7 +1211,8 @@ def main():
                 else:
                     f = dl(p['u'])
                     if f and f.endswith('.py'):
-                        run(f)
+                        shutil.move(f, os.path.join(PROJ_DIR, f))
+                        run(os.path.join(PROJ_DIR, f))
                 input("\n[+] DONE. ENTER...")
 
 if __name__ == "__main__":
