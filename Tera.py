@@ -150,26 +150,32 @@ class F:
             with open(a, 'w') as f:
                 json.dump(D, f, indent=2)
         
-        b = os.path.join(DEFAULTS_DIR, "plugin_template.py")
+        b = os.path.join(DEFAULTS_DIR, "example.py")
         if not os.path.exists(b):
             with open(b, 'w') as f:
                 f.write('''class Plugin:
     def __init__(self):
-        self.name = "template"
+        self.name = "Hello World"
         self.version = "1.0"
         self.author = "user"
     
+    def on_load(self):
+        print(f"  [Hello World] Plugin loaded")
+    
+    def on_menu(self):
+        print(f"  [Hello World] Type 'hello' to run")
+    
     def run(self, project=None, data=None, color="default"):
-        print(f"=== {self.name} ===\\n")
+        print(f"\\n=== Hello World ===\\n")
         print(f"Project: {project}")
         print(f"Color: {color}")
         print(f"Data: {data}")
+        name = input("What's your name? ").strip()
+        print(f"Hello {name}!")
     
-    def on_load(self):
-        print(f"[{self.name}] Loaded")
-    
-    def on_menu(self):
-        print(f"  [{self.name}] Active")
+    def on_suggest(self, msg):
+        if "hello" in msg.lower():
+            print(f"  [Hello World] Thanks for the suggestion!")
 ''')
     
     def ls(self, d, e=None):
@@ -474,8 +480,25 @@ class Q:
         if not n.endswith('.py'):
             n = n + '.py'
         
-        t = fm.rf(os.path.join(DEFAULTS_DIR, "plugin_template.py"))
-        t = t.replace('"template"', f'"{n[:-3]}"')
+        t = '''class Plugin:
+    def __init__(self):
+        self.name = "''' + n[:-3] + '''"
+        self.version = "1.0"
+        self.author = "user"
+    
+    def on_load(self):
+        print(f"  [''' + n[:-3] + '''] Plugin loaded")
+    
+    def on_menu(self):
+        print(f"  [''' + n[:-3] + '''] Ready")
+    
+    def run(self, project=None, data=None, color="default"):
+        print(f"\\n=== ''' + n[:-3] + ''' ===\\n")
+        print(f"Project: {project}")
+        print(f"Color: {color}")
+        print(f"Data: {data}")
+        print("Hello from plugin!")
+'''
         
         p = os.path.join(PLUG_DIR, n)
         if fm.wf(p, t):
@@ -485,8 +508,39 @@ class Q:
         return None
     
     def ex(self):
-        u = f"https://raw.githubusercontent.com/{U1}/{U2}/{U3}/{U4}/example_plugin.py"
-        return self.instp(u)
+        try:
+            p = os.path.join(PLUG_DIR, "example.py")
+            with open(p, 'w') as f:
+                f.write('''class Plugin:
+    def __init__(self):
+        self.name = "Hello World"
+        self.version = "1.0"
+        self.author = "user"
+    
+    def on_load(self):
+        print(f"  [Hello World] Plugin loaded")
+    
+    def on_menu(self):
+        print(f"  [Hello World] Type 'hello' to run")
+    
+    def run(self, project=None, data=None, color="default"):
+        print(f"\\n=== Hello World ===\\n")
+        print(f"Project: {project}")
+        print(f"Color: {color}")
+        print(f"Data: {data}")
+        name = input("What's your name? ").strip()
+        print(f"Hello {name}!")
+    
+    def on_suggest(self, msg):
+        if "hello" in msg.lower():
+            print(f"  [Hello World] Thanks for the suggestion!")
+''')
+            print(col("[+] Example plugin created", "bright_green"))
+            self.load()
+            return True
+        except:
+            print(col("[-] Failed", "bright_red"))
+            return False
     
     def instp(self, u):
         try:
