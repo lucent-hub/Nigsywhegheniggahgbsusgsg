@@ -14,608 +14,502 @@ import subprocess
 import importlib.util
 import urllib.request
 import urllib.parse
-import urllib.error
 import glob
 import select
 import webbrowser
-import ssl
 
 HOST = "127.0.0.1"
 PORT = 8080
 CFG = "tera_config.json"
 PROJ_DIR = "projects"
 PLUG_DIR = "plugins"
-COLORS_DIR = "colors"
 CONNECTIONS_FILE = "connections.json"
 DEFAULTS_DIR = "defaults"
 
-GH_USER = "lucent-hub"
-GH_REPO = "Nigsywhegheniggahgbsusgsg"
-GH_BRANCH = "main"
-GH_PATH = "Projects"
-CDN = "https://fevber-die-plz.vercel.app"
+U1 = "lucent-hub"
+U2 = "Nigsywhegheniggahgbsusgsg"
+U3 = "main"
+U4 = "Projects"
+U5 = "https://fevber-die-plz.vercel.app"
+U6 = "https://pastebin.com/raw/QuYcbyLm"
 
-UPDATE_LOG_URL = "https://pastebin.com/raw/QuYcbyLm"
-
-COLORS = {
-    "black": {"bg": "000000", "fg": "00ff00", "hl": "0000ff"},
-    "midnight": {"bg": "191970", "fg": "87ceeb", "hl": "4b0082"},
-    "dark": {"bg": "1a1a1a", "fg": "00ff00", "hl": "0000ff"},
-    "amber": {"bg": "000000", "fg": "ffb000", "hl": "ff4500"},
-    "matrix": {"bg": "000000", "fg": "39ff14", "hl": "00ff00"},
-    "dracula": {"bg": "282a36", "fg": "f8f8f2", "hl": "bd93f9"},
-    "solarized_dark": {"bg": "002b36", "fg": "839496", "hl": "b58900"},
-    "solarized_light": {"bg": "fdf6e3", "fg": "657b83", "hl": "268bd2"},
-    "gruvbox_dark": {"bg": "282828", "fg": "ebdbb2", "hl": "fabd2f"},
-    "gruvbox_light": {"bg": "fbf1c7", "fg": "3c3836", "hl": "d79921"},
-    "neon": {"bg": "0f0f0f", "fg": "ff00ff", "hl": "00ffff"},
-    "ice": {"bg": "0a192f", "fg": "64ffda", "hl": "8892b0"},
-    "rose": {"bg": "2e1a1f", "fg": "ff4d6d", "hl": "ffc2d1"},
-    "hacker_red": {"bg": "000000", "fg": "ff0033", "hl": "990000"},
-    "cyberpunk": {"bg": "1b1b2f", "fg": "ff00ff", "hl": "00ffff"},
-    "midnight_blue": {"bg": "191970", "fg": "ffffff", "hl": "ff6347"},
-    "forest": {"bg": "013220", "fg": "a8ff60", "hl": "008000"},
-    "sunset": {"bg": "ff4500", "fg": "ffff00", "hl": "ff6347"},
-    "ocean": {"bg": "001f3f", "fg": "7fdbff", "hl": "39cccc"},
-    "desert": {"bg": "edc9af", "fg": "8b4513", "hl": "deb887"},
-    "lava": {"bg": "330000", "fg": "ff3300", "hl": "ff6600"},
-    "galaxy": {"bg": "0b0c10", "fg": "c5c6c7", "hl": "6f2232"},
-    "plasma": {"bg": "2e003e", "fg": "ff00ff", "hl": "ffb6c1"},
-    "aurora": {"bg": "001f3f", "fg": "39ff14", "hl": "00ffff"},
-    "electric": {"bg": "0f0f0f", "fg": "ffff00", "hl": "ff00ff"},
-    "midnight_purple": {"bg": "191970", "fg": "dda0dd", "hl": "9400d3"},
-    "coffee": {"bg": "4b3621", "fg": "d2b48c", "hl": "a0522d"},
-    "mint": {"bg": "98ff98", "fg": "006400", "hl": "00ff7f"},
-    "coral": {"bg": "ff7f50", "fg": "000000", "hl": "ff6347"},
-    "peach": {"bg": "ffe5b4", "fg": "ff4500", "hl": "ffa07a"},
-    "storm": {"bg": "2f4f4f", "fg": "00ffff", "hl": "ff4500"},
-    "iceberg": {"bg": "d0f0fd", "fg": "000080", "hl": "1e90ff"},
-    "twilight": {"bg": "0c0032", "fg": "ff77ff", "hl": "ffb3ff"},
-    "midnight_green": {"bg": "004953", "fg": "00ffcc", "hl": "008080"},
-    "ruby": {"bg": "9b111e", "fg": "ffffff", "hl": "ff0000"},
-    "sapphire": {"bg": "0f52ba", "fg": "ffffff", "hl": "00ffff"},
-    "emerald": {"bg": "50c878", "fg": "000000", "hl": "00ff00"},
-    "topaz": {"bg": "ffc87c", "fg": "000000", "hl": "ff8c00"},
-    "onyx": {"bg": "353839", "fg": "ffffff", "hl": "ff00ff"},
-    "amethyst": {"bg": "9966cc", "fg": "ffffff", "hl": "8a2be2"},
-    "copper": {"bg": "b87333", "fg": "000000", "hl": "ff7f50"},
-    "bronze": {"bg": "cd7f32", "fg": "000000", "hl": "ffd700"},
-    "platinum": {"bg": "e5e4e2", "fg": "000000", "hl": "ffffff"},
-    "jade": {"bg": "00a86b", "fg": "ffffff", "hl": "00ff7f"},
-    "obsidian": {"bg": "0b0b0b", "fg": "ffffff", "hl": "ff0000"},
-    "ivory": {"bg": "fffff0", "fg": "000000", "hl": "dcdcdc"},
+C = {
+    "black": "30",
+    "red": "31",
+    "green": "32",
+    "yellow": "33",
+    "blue": "34",
+    "magenta": "35",
+    "cyan": "36",
+    "white": "37",
+    "bright_black": "90",
+    "bright_red": "91",
+    "bright_green": "92",
+    "bright_yellow": "93",
+    "bright_blue": "94",
+    "bright_magenta": "95",
+    "bright_cyan": "96",
+    "bright_white": "97"
 }
 
-DEFAULT_COLORS = {
-    "red": {"bg": "ff0000", "fg": "ffffff", "hl": "000000"},
-    "blue": {"bg": "0000ff", "fg": "ffffff", "hl": "ffff00"},
-    "green": {"bg": "00ff00", "fg": "000000", "hl": "ffffff"},
-    "purple": {"bg": "800080", "fg": "ffffff", "hl": "00ff00"},
-    "orange": {"bg": "ffa500", "fg": "000000", "hl": "0000ff"},
-    "cyan": {"bg": "00ffff", "fg": "000000", "hl": "ff00ff"},
-    "pink": {"bg": "ffc0cb", "fg": "000000", "hl": "ff69b4"},
-    "lime": {"bg": "32cd32", "fg": "000000", "hl": "ffffff"},
-    "gold": {"bg": "ffd700", "fg": "000000", "hl": "b8860b"},
-    "teal": {"bg": "008080", "fg": "ffffff", "hl": "00ffff"},
-    "navy": {"bg": "000080", "fg": "ffffff", "hl": "87cefa"},
-    "crimson": {"bg": "dc143c", "fg": "ffffff", "hl": "8b0000"},
-    "violet": {"bg": "ee82ee", "fg": "000000", "hl": "9400d3"},
-    "brown": {"bg": "8b4513", "fg": "ffffff", "hl": "d2b48c"},
-    "silver": {"bg": "c0c0c0", "fg": "000000", "hl": "808080"},
-    "charcoal": {"bg": "36454f", "fg": "ffffff", "hl": "00ffcc"},
-    "maroon": {"bg": "800000", "fg": "ffffff", "hl": "ff4500"},
-    "olive": {"bg": "808000", "fg": "000000", "hl": "ffff00"},
-    "orchid": {"bg": "da70d6", "fg": "000000", "hl": "9400d3"},
-    "salmon": {"bg": "fa8072", "fg": "000000", "hl": "ff4500"},
-    "turquoise": {"bg": "40e0d0", "fg": "000000", "hl": "00ced1"},
-    "plum": {"bg": "dda0dd", "fg": "000000", "hl": "800080"},
-    "peru": {"bg": "cd853f", "fg": "ffffff", "hl": "8b4513"},
-    "khaki": {"bg": "f0e68c", "fg": "000000", "hl": "bdb76b"},
-    "lavender": {"bg": "e6e6fa", "fg": "000000", "hl": "9370db"},
-    "cerulean": {"bg": "007ba7", "fg": "ffffff", "hl": "00ffff"},
-    "apricot": {"bg": "fbceb1", "fg": "000000", "hl": "ff7f50"},
-    "jade": {"bg": "00a86b", "fg": "ffffff", "hl": "00ff7f"},
-    "pearl": {"bg": "eae0c8", "fg": "000000", "hl": "dcdcdc"},
-    "onyx": {"bg": "353839", "fg": "ffffff", "hl": "ff00ff"},
+T = {
+    "black": "black",
+    "midnight": "bright_blue",
+    "dark": "bright_green",
+    "amber": "bright_yellow",
+    "matrix": "bright_green",
+    "dracula": "bright_magenta",
+    "solarized_dark": "bright_blue",
+    "solarized_light": "bright_yellow",
+    "gruvbox_dark": "bright_yellow",
+    "gruvbox_light": "bright_black",
+    "neon": "bright_magenta",
+    "ice": "bright_cyan",
+    "rose": "bright_red",
+    "hacker_red": "bright_red",
+    "cyberpunk": "bright_magenta",
+    "midnight_blue": "bright_white",
+    "forest": "bright_green",
+    "sunset": "bright_yellow",
+    "ocean": "bright_blue",
+    "desert": "bright_yellow",
+    "lava": "bright_red",
+    "galaxy": "bright_white",
+    "plasma": "bright_magenta",
+    "aurora": "bright_green",
+    "electric": "bright_yellow",
+    "midnight_purple": "bright_magenta",
+    "coffee": "bright_yellow",
+    "mint": "bright_green",
+    "coral": "bright_red",
+    "peach": "bright_red",
+    "storm": "bright_cyan",
+    "iceberg": "bright_blue",
+    "twilight": "bright_magenta",
+    "midnight_green": "bright_cyan",
+    "ruby": "bright_red",
+    "sapphire": "bright_blue",
+    "emerald": "bright_green",
+    "topaz": "bright_yellow",
+    "onyx": "bright_white",
+    "amethyst": "bright_magenta",
+    "copper": "bright_yellow",
+    "bronze": "bright_yellow",
+    "platinum": "bright_white",
+    "jade": "bright_green",
+    "obsidian": "bright_white",
+    "ivory": "bright_black",
 }
 
-def get_system_colors():
-    system = platform.system().lower()
-    release = platform.release().lower()
-    machine = platform.machine().lower()
-    
-    system_colors = {
-        "darwin": {
-            "name": "midnight",
-            "supported": ["midnight", "ice", "dark", "black", "aurora", "galaxy"]
-        },
-        "windows": {
-            "name": "dracula",
-            "supported": ["dracula", "dark", "black", "cyberpunk", "plasma"]
-        },
-        "linux": {
-            "name": "matrix",
-            "supported": ["matrix", "solarized_dark", "solarized_light", "gruvbox_dark", 
-                         "gruvbox_light", "dark", "black", "forest", "ocean", "coffee"]
-        },
-        "android": {
-            "name": "neon",
-            "supported": ["neon", "dark", "black", "electric", "amber", "hacker_red"]
-        },
-        "ios": {
-            "name": "ice",
-            "supported": ["ice", "midnight", "dark", "aurora", "galaxy"]
-        }
-    }
-    
-    if 'android' in release or 'termux' in release or 'android' in machine:
-        return system_colors["android"]
-    
-    return system_colors.get(system, {"name": "dark", "supported": list(COLORS.keys())})
+def col(t, c):
+    if c in C:
+        return f"\033[{C[c]}m{t}\033[0m"
+    return t
 
-SYSTEM_COLORS = get_system_colors()
+def sho(n):
+    if n in T:
+        return col(n, T[n])
+    return n
 
-def filter_colors_by_system(colors_dict):
-    supported = SYSTEM_COLORS["supported"]
-    return {k: v for k, v in colors_dict.items() if k in supported}
-
-COLORS = filter_colors_by_system(COLORS)
-DEFAULT_COLORS = filter_colors_by_system(DEFAULT_COLORS)
-
-def get_colors():
-    system = platform.system().lower()
-    release = platform.release().lower()
-    machine = platform.machine().lower()
-    
-    if system == "darwin":
-        return COLORS.get("midnight", COLORS.get("dark", list(COLORS.values())[0]))
-    elif system == "windows":
-        if "10" in release or "11" in release:
-            return COLORS.get("dracula", COLORS.get("dark", list(COLORS.values())[0]))
-        else:
-            return COLORS.get("black", COLORS.get("dark", list(COLORS.values())[0]))
-    elif system == "linux":
-        if 'android' in release or 'termux' in release or 'android' in machine:
-            return COLORS.get("neon", COLORS.get("dark", list(COLORS.values())[0]))
-        try:
-            with open("/etc/os-release") as f:
-                data = f.read().lower()
-            if "ubuntu" in data:
-                return COLORS.get("solarized_light", COLORS.get("dark", list(COLORS.values())[0]))
-            elif "arch" in data:
-                return COLORS.get("matrix", COLORS.get("dark", list(COLORS.values())[0]))
-            elif "fedora" in data:
-                return COLORS.get("gruvbox_dark", COLORS.get("dark", list(COLORS.values())[0]))
-            elif "debian" in data:
-                return COLORS.get("solarized_dark", COLORS.get("dark", list(COLORS.values())[0]))
-            elif "manjaro" in data:
-                return COLORS.get("neon", COLORS.get("dark", list(COLORS.values())[0]))
-            else:
-                return COLORS.get("dark", list(COLORS.values())[0])
-        except:
-            return COLORS.get("dark", list(COLORS.values())[0])
-    else:
-        return COLORS.get("black", COLORS.get("dark", list(COLORS.values())[0]))
-
-CURRENT_COLORS = get_colors()
-
-CFG_DEFAULT = {
+D = {
     "name": "Tera System",
     "version": "7.0",
     "author": "system",
     "projects": [],
     "settings": {
-        "theme": SYSTEM_COLORS["name"],
+        "theme": "dark",
         "auto_save": True,
         "debug": False
     },
     "paths": {
         "projects": PROJ_DIR,
         "plugins": PLUG_DIR,
-        "colors": COLORS_DIR,
         "defaults": DEFAULTS_DIR
     }
 }
 
 try:
     import psutil
+    P = True
 except ImportError:
     psutil = None
+    P = False
 
-class FileManager:
+class F:
     def __init__(self):
-        self.create_dirs()
-        self.create_defaults()
+        self.mk()
+        self.defs()
     
-    def create_dirs(self):
-        for d in [PROJ_DIR, PLUG_DIR, COLORS_DIR, DEFAULTS_DIR]:
+    def mk(self):
+        for d in [PROJ_DIR, PLUG_DIR, DEFAULTS_DIR]:
             os.makedirs(d, exist_ok=True)
     
-    def create_defaults(self):
-        colors_file = os.path.join(DEFAULTS_DIR, "colors.json")
-        if not os.path.exists(colors_file):
-            with open(colors_file, 'w') as f:
-                json.dump(DEFAULT_COLORS, f, indent=2)
+    def defs(self):
+        a = os.path.join(DEFAULTS_DIR, "config.json")
+        if not os.path.exists(a):
+            with open(a, 'w') as f:
+                json.dump(D, f, indent=2)
         
-        cfg_file = os.path.join(DEFAULTS_DIR, "config.json")
-        if not os.path.exists(cfg_file):
-            with open(cfg_file, 'w') as f:
-                json.dump(CFG_DEFAULT, f, indent=2)
-        
-        plugin_file = os.path.join(DEFAULTS_DIR, "plugin_template.py")
-        if not os.path.exists(plugin_file):
-            with open(plugin_file, 'w') as f:
+        b = os.path.join(DEFAULTS_DIR, "plugin_template.py")
+        if not os.path.exists(b):
+            with open(b, 'w') as f:
                 f.write('''class Plugin:
     def __init__(self):
         self.name = "template"
         self.version = "1.0"
         self.author = "user"
-        self.description = "default plugin"
     
     def run(self, project=None, data=None, color="default"):
         print(f"=== {self.name} ===\\n")
         print(f"Project: {project}")
         print(f"Color: {color}")
         print(f"Data: {data}")
-        print("Hello from plugin!")
     
     def on_load(self):
-        print(f"[{self.name}] Plugin loaded")
+        print(f"[{self.name}] Loaded")
     
     def on_menu(self):
-        print(f"[{self.name}] Ready")
-''')
-        
-        color_sh_file = os.path.join(DEFAULTS_DIR, "color.sh")
-        if not os.path.exists(color_sh_file):
-            with open(color_sh_file, 'w') as f:
-                f.write(f'''#!/bin/bash
-# System: {platform.system()} {platform.release()}
-# Default color configuration
-color = "{SYSTEM_COLORS["name"]}"
+        print(f"  [{self.name}] Active")
 ''')
     
-    def list_files(self, directory, ext=None):
-        if ext:
-            return glob.glob(f"{directory}/*.{ext}")
-        return glob.glob(f"{directory}/*")
+    def ls(self, d, e=None):
+        if e:
+            return [f for f in glob.glob(f"{d}/*.{e}") if os.path.isfile(f)]
+        return [f for f in glob.glob(f"{d}/*") if os.path.isfile(f)]
     
-    def read_json(self, path):
+    def rj(self, p):
         try:
-            with open(path, 'r') as f:
+            with open(p, 'r') as f:
                 return json.load(f)
         except:
             return {}
     
-    def write_json(self, path, data):
+    def wj(self, p, d):
         try:
-            with open(path, 'w') as f:
-                json.dump(data, f, indent=2)
+            with open(p, 'w') as f:
+                json.dump(d, f, indent=2)
             return True
         except:
             return False
     
-    def read_file(self, path):
+    def rf(self, p):
         try:
-            with open(path, 'r') as f:
+            with open(p, 'r') as f:
                 return f.read()
         except:
             return ""
     
-    def write_file(self, path, content):
+    def wf(self, p, c):
         try:
-            with open(path, 'w') as f:
-                f.write(content)
+            with open(p, 'w') as f:
+                f.write(c)
             return True
         except:
             return False
-    
-    def update_color_sh(self, color_name):
-        path = os.path.join(DEFAULTS_DIR, "color.sh")
-        content = f'''#!/bin/bash
-# System: {platform.system()} {platform.release()}
-# Current color configuration
-color = "{color_name}"
-'''
-        self.write_file(path, content)
 
-fm = FileManager()
+fm = F()
 
-class Connections:
+class X:
     def __init__(self):
-        self.file = CONNECTIONS_FILE
-        self.data = self.load()
+        self.f = CONNECTIONS_FILE
+        self.d = self.load()
         
     def load(self):
-        return fm.read_json(self.file)
+        return fm.rj(self.f)
     
     def save(self):
-        fm.write_json(self.file, self.data)
+        fm.wj(self.f, self.d)
     
-    def connect(self, plugin, project, color=None):
-        if plugin not in self.data:
-            self.data[plugin] = {}
-        self.data[plugin][project] = color or "default"
+    def add(self, p, j, c=None):
+        if p not in self.d:
+            self.d[p] = {}
+        self.d[p][j] = c or "default"
         self.save()
     
-    def disconnect(self, plugin, project):
-        if plugin in self.data and project in self.data[plugin]:
-            del self.data[plugin][project]
+    def rem(self, p, j):
+        if p in self.d and j in self.d[p]:
+            del self.d[p][j]
             self.save()
     
-    def get_for_plugin(self, plugin):
-        return self.data.get(plugin, {})
+    def getp(self, p):
+        return self.d.get(p, {})
     
-    def get_for_project(self, project):
-        connected = []
-        for plugin, projects in self.data.items():
-            if project in projects:
-                connected.append((plugin, projects[project]))
-        return connected
+    def getj(self, j):
+        r = []
+        for p, js in self.d.items():
+            if j in js:
+                r.append((p, js[j]))
+        return r
 
-conn = Connections()
+conn = X()
 
-class GitHubProjects:
+class Y:
     def __init__(self):
-        self.cache = []
-        self.cache_time = 0
+        self.c = ""
+        self.t = 0
         
-    def get_raw_url(self, filename):
-        return f"{CDN}/{GH_PATH}/{filename}"
-    
-    def get_api_url(self):
-        return f"https://api.github.com/repos/{GH_USER}/{GH_REPO}/contents/{GH_PATH}?ref={GH_BRANCH}"
-    
-    def fetch(self):
-        now = time.time()
-        if now - self.cache_time < 300:
-            return self.cache
+    def get(self):
+        n = time.time()
+        if n - self.t < 300 and self.c:
+            return self.c
             
         try:
-            url = self.get_api_url()
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=3) as r:
-                data = json.loads(r.read().decode())
-                self.cache = []
-                for item in data:
-                    if item['name'].endswith('.py'):
-                        self.cache.append({
-                            'n': item['name'],
-                            'u': self.get_raw_url(urllib.parse.quote(item['name']))
-                        })
-                self.cache_time = now
-                return self.cache
+            r = urllib.request.Request(U6, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(r, timeout=3) as r:
+                self.c = r.read().decode()
+                self.t = n
+                return self.c
         except:
-            return self.cache
+            return self.c or "Failed to fetch update log"
+
+up = Y()
+
+class G:
+    def __init__(self):
+        self.c = []
+        self.t = 0
+        
+    def url(self, n):
+        return f"{U5}/{U4}/{n}"
     
-    def list(self):
+    def api(self):
+        return f"https://api.github.com/repos/{U1}/{U2}/contents/{U4}?ref={U3}"
+    
+    def fetch(self):
+        n = time.time()
+        if n - self.t < 300:
+            return self.c
+            
+        try:
+            u = self.api()
+            r = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(r, timeout=3) as r:
+                d = json.loads(r.read().decode())
+                self.c = []
+                for i in d:
+                    if i['name'].endswith('.py'):
+                        self.c.append({
+                            'n': i['name'],
+                            'u': self.url(urllib.parse.quote(i['name']))
+                        })
+                self.t = n
+                return self.c
+        except:
+            return self.c
+    
+    def ls(self):
         return self.fetch()
 
-gh = GitHubProjects()
+gh = G()
 
-class Config:
+class Z:
     def __init__(self, f=CFG):
         self.f = f
         self.c = self.load()
         
     def load(self):
-        default = fm.read_json(os.path.join(DEFAULTS_DIR, "config.json")) or CFG_DEFAULT
+        d = fm.rj(os.path.join(DEFAULTS_DIR, "config.json")) or D
         if os.path.exists(self.f):
             try:
-                user = fm.read_json(self.f)
-                for k, v in user.items():
-                    default[k] = v
+                u = fm.rj(self.f)
+                for k, v in u.items():
+                    d[k] = v
             except:
                 pass
-        return default
+        return d
     
     def save(self):
-        fm.write_json(self.f, self.c)
-        fm.update_color_sh(self.c['settings']['theme'])
+        fm.wj(self.f, self.c)
     
-    def get_proj(self):
+    def proj(self):
         p = []
         
-        for f in fm.list_files(PROJ_DIR, 'py'):
+        for f in fm.ls(PROJ_DIR, 'py'):
             n = os.path.basename(f)
-            p.append({'n': n, 'path': f, 'local': True})
+            p.append({'n': n, 'p': f, 'l': True})
         
-        for g in gh.list():
+        for g in gh.ls():
             if not any(x.get('n') == g['n'] for x in p):
                 p.append({'n': g['n'], 'u': g['u']})
         
         return p
     
-    def set_theme(self, t):
-        if t in COLORS:
+    def set(self, t):
+        if t in T:
             self.c['settings']['theme'] = t
             self.save()
 
-class PluginMgr:
+class Q:
     def __init__(self):
         self.p = {}
-        self.files = {}
-        self.colors = {}
+        self.f = {}
         self.load()
-        self.load_colors()
-    
-    def load_colors(self):
-        self.colors = COLORS.copy()
-        for f in fm.list_files(COLORS_DIR, 'json'):
-            try:
-                name = os.path.basename(f)[:-5]
-                data = fm.read_json(f)
-                self.colors[name] = data
-            except:
-                pass
-    
-    def save_color(self, name, data):
-        path = os.path.join(COLORS_DIR, f"{name}.json")
-        if fm.write_json(path, data):
-            self.colors[name] = data
-            return True
-        return False
-    
-    def delete_color(self, name):
-        if name in self.colors and name not in COLORS:
-            path = os.path.join(COLORS_DIR, f"{name}.json")
-            try:
-                os.remove(path)
-                del self.colors[name]
-                return True
-            except:
-                pass
-        return False
     
     def load(self):
         self.p = {}
-        self.files = {}
+        self.f = {}
         sys.path.insert(0, os.path.abspath(PLUG_DIR))
         
-        for f in fm.list_files(PLUG_DIR, 'py'):
-            if f.endswith('__init__.py'):
-                continue
+        for f in fm.ls(PLUG_DIR, 'py'):
             m = os.path.basename(f)[:-3]
             try:
-                spec = importlib.util.spec_from_file_location(m, f)
-                mod = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(mod)
+                s = importlib.util.spec_from_file_location(m, f)
+                mod = importlib.util.module_from_spec(s)
+                s.loader.exec_module(mod)
                 if hasattr(mod, 'Plugin'):
-                    plugin = mod.Plugin()
-                    plugin.path = f
-                    plugin.file = os.path.basename(f)
-                    plugin.name = getattr(plugin, 'name', m)
-                    plugin.version = getattr(plugin, 'version', '1.0')
-                    plugin.author = getattr(plugin, 'author', 'unknown')
-                    self.p[m] = plugin
+                    pl = mod.Plugin()
+                    pl.path = f
+                    pl.file = os.path.basename(f)
+                    pl.name = getattr(pl, 'name', m)
+                    pl.version = getattr(pl, 'version', '1.0')
+                    pl.author = getattr(pl, 'author', 'unknown')
+                    self.p[m] = pl
+                    
+                    df = os.path.join(DEFAULTS_DIR, f"{m}_data.json")
+                    self.f[m] = fm.rj(df)
             except Exception as e:
                 pass
     
-    def run(self, name, project=None):
-        if name in self.p:
-            plugin = self.p[name]
-            if hasattr(plugin, 'run'):
+    def save(self, n):
+        if n in self.f:
+            p = os.path.join(DEFAULTS_DIR, f"{n}_data.json")
+            fm.wj(p, self.f[n])
+    
+    def run(self, n, j=None):
+        if n in self.p:
+            pl = self.p[n]
+            if hasattr(pl, 'run'):
                 try:
-                    if project:
-                        connected = conn.get_for_plugin(name)
-                        color = connected.get(project, "default")
-                        print(f"\n[{name}] Running with {project} [{color}]\n")
-                        plugin.run(project, self.files.get(name, {}), color)
+                    if j:
+                        co = conn.getp(n)
+                        c = co.get(j, "default")
+                        print(col(f"\n[{n}] Running with {j} [{c}]\n", "bright_green"))
+                        pl.run(j, self.f.get(n, {}), c)
                     else:
-                        print(f"\n[{name}] Running\n")
-                        plugin.run(None, self.files.get(name, {}), "default")
+                        print(col(f"\n[{n}] Running\n", "bright_green"))
+                        pl.run(None, self.f.get(n, {}), "default")
+                    self.save(n)
                 except Exception as e:
-                    print(f"[-] Error: {e}")
+                    print(col(f"[-] Error: {e}", "bright_red"))
             else:
-                print("[*] No run() method")
+                print(col("[*] No run() method", "bright_yellow"))
         else:
-            print(f"[-] Not found")
+            print(col(f"[-] Not found", "bright_red"))
     
-    def edit(self, name):
-        if name in self.p:
-            path = self.p[name].path
-            editor = os.environ.get('EDITOR', 'nano')
+    def edit(self, n):
+        if n in self.p:
+            p = self.p[n].path
+            e = os.environ.get('EDITOR', 'nano')
             try:
-                subprocess.run([editor, path])
+                subprocess.run([e, p])
                 self.load()
             except:
-                print(f"[-] Failed to open {editor}")
+                print(col(f"[-] Failed to open {e}", "bright_red"))
         else:
-            print(f"[-] Not found")
+            print(col(f"[-] Not found", "bright_red"))
     
-    def remove(self, name):
-        if name in self.p:
-            path = self.p[name].path
+    def view(self, n):
+        if n in self.f:
+            print(col(f"\nDATA for {n}:", "bright_cyan"))
+            print(json.dumps(self.f[n], indent=2))
+        else:
+            print(col("[-] No data", "bright_yellow"))
+    
+    def editd(self, n):
+        if n in self.f:
+            print(col(f"\nEDIT DATA for {n} (key=value format, empty to stop):", "bright_cyan"))
+            while True:
+                kv = input("key=value: ").strip()
+                if not kv:
+                    break
+                if '=' in kv:
+                    k, v = kv.split('=', 1)
+                    self.f[n][k] = v
+                    self.save(n)
+                    print(col(f"[+] Set {k}={v}", "bright_green"))
+        else:
+            self.f[n] = {}
+            self.editd(n)
+    
+    def rem(self, n):
+        if n in self.p:
+            p = self.p[n].path
             try:
-                os.remove(path)
-                print(f"[+] Removed {name}")
+                os.remove(p)
+                print(col(f"[+] Removed {n}", "bright_green"))
                 self.load()
             except:
-                print(f"[-] Failed to remove")
+                print(col(f"[-] Failed to remove", "bright_red"))
         else:
-            print(f"[-] Not found")
+            print(col(f"[-] Not found", "bright_red"))
     
-    def install(self, url):
+    def inst(self, u):
         try:
-            f = os.path.basename(url).split('?')[0]
+            f = os.path.basename(u).split('?')[0]
             if not f.endswith('.py'):
                 f = f + '.py'
-            path = os.path.join(PROJ_DIR, f)
+            p = os.path.join(PROJ_DIR, f)
             
-            stop = threading.Event()
-            t = threading.Thread(target=spinner, args=(stop, "downloading"))
-            t.start()
+            print(col("[*] Downloading...", "bright_cyan"))
             
             if shutil.which("wget"):
-                subprocess.run(["wget", "-O", path, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(["wget", "-O", p, u], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             elif shutil.which("curl"):
-                subprocess.run(["curl", "-L", "-o", path, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(["curl", "-L", "-o", p, u], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
-                urllib.request.urlretrieve(url, path)
+                urllib.request.urlretrieve(u, p)
             
-            stop.set()
-            t.join()
-            
-            if os.path.exists(path):
-                print(f"[+] Downloaded: {f} to projects/")
+            if os.path.exists(p):
+                print(col(f"[+] Downloaded: {f} to projects/", "bright_green"))
                 return True
         except:
-            stop.set()
-            t.join()
-            print("[-] Failed")
+            print(col("[-] Failed", "bright_red"))
         return False
     
     def new(self):
-        print("\nNEW PLUGIN")
-        name = input("name: ").strip()
-        if not name:
+        print(col("\nNEW PLUGIN", "bright_cyan"))
+        n = input("name: ").strip()
+        if not n:
             return
-        if not name.endswith('.py'):
-            name = name + '.py'
+        if not n.endswith('.py'):
+            n = n + '.py'
         
-        template = fm.read_file(os.path.join(DEFAULTS_DIR, "plugin_template.py"))
-        template = template.replace('"template"', f'"{name[:-3]}"')
+        t = fm.rf(os.path.join(DEFAULTS_DIR, "plugin_template.py"))
+        t = t.replace('"template"', f'"{n[:-3]}"')
         
-        path = os.path.join(PLUG_DIR, name)
-        if fm.write_file(path, template):
-            print(f"[+] Created: {path}")
+        p = os.path.join(PLUG_DIR, n)
+        if fm.wf(p, t):
+            print(col(f"[+] Created: {p}", "bright_green"))
             self.load()
-            return path
+            return p
         return None
     
-    def example(self):
-        url = "https://raw.githubusercontent.com/lucent-hub/Nigsywhegheniggahgbsusgsg/main/Projects/example_plugin.py"
-        return self.install_plugin(url)
+    def ex(self):
+        u = f"https://raw.githubusercontent.com/{U1}/{U2}/{U3}/{U4}/example_plugin.py"
+        return self.instp(u)
     
-    def install_plugin(self, url):
+    def instp(self, u):
         try:
-            f = os.path.basename(url).split('?')[0]
+            f = os.path.basename(u).split('?')[0]
             if not f.endswith('.py'):
                 f = f + '.py'
-            path = os.path.join(PLUG_DIR, f)
+            p = os.path.join(PLUG_DIR, f)
             
-            stop = threading.Event()
-            t = threading.Thread(target=spinner, args=(stop, "installing plugin"))
-            t.start()
+            print(col("[*] Installing plugin...", "bright_cyan"))
             
             if shutil.which("wget"):
-                subprocess.run(["wget", "-O", path, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(["wget", "-O", p, u], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             elif shutil.which("curl"):
-                subprocess.run(["curl", "-L", "-o", path, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(["curl", "-L", "-o", p, u], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
-                urllib.request.urlretrieve(url, path)
+                urllib.request.urlretrieve(u, p)
             
-            stop.set()
-            t.join()
-            
-            if os.path.exists(path):
-                print(f"[+] Installed: {f} to plugins/")
+            if os.path.exists(p):
+                print(col(f"[+] Installed: {f} to plugins/", "bright_green"))
                 self.load()
                 return True
         except:
-            stop.set()
-            t.join()
-            print("[-] Failed")
+            print(col("[-] Failed", "bright_red"))
         return False
     
     def hook(self, h, *a, **k):
@@ -633,65 +527,21 @@ class PluginMgr:
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
-def set_bg(color_hex):
-    if not color_hex or len(color_hex) != 6:
-        return
-    try:
-        r, g, b = hex_to_rgb(color_hex)
-        print(f"\033[48;2;{r};{g};{b}m", end="")
-    except:
-        pass
-
-def set_fg(color_hex):
-    if not color_hex or len(color_hex) != 6:
-        return
-    try:
-        r, g, b = hex_to_rgb(color_hex)
-        print(f"\033[38;2;{r};{g};{b}m", end="")
-    except:
-        pass
-
-def reset_colors():
-    print("\033[0m", end="")
-
-def colored_logo(theme):
-    try:
-        set_bg(theme['bg'])
-        set_fg(theme['hl'])
-        print(" ╭━━━━╮")
-        set_fg(theme['fg'])
-        print(" ┃╭╮╭╮┃")
-        print(" ╰╯┃┃┣┻━┳━┳━━╮")
-        print(" ╱╱┃┃┃┃━┫╭┫╭╮┃")
-        print(" ╱╱┃┃┃┃━┫┃┃╭╮┃")
-        print(" ╱╱╰╯╰━━┻╯╰╯╰╯   v7")
-        set_fg(theme['fg'])
-        print("────────────────────────────")
-    except:
-        print(" ╭━━━━╮")
-        print(" ┃╭╮╭╮┃")
-        print(" ╰╯┃┃┣┻━┳━┳━━╮")
-        print(" ╱╱┃┃┃┃━┫╭┫╭╮┃")
-        print(" ╱╱┃┃┃┃━┫┃┃╭╮┃")
-        print(" ╱╱╰╯╰━━┻╯╰╯╰╯   v7")
-        print("────────────────────────────")
-    reset_colors()
-
-def local_ip():
+def lip():
     try:
         return socket.gethostbyname(socket.gethostname())
     except:
         return "?"
 
-def public_ip():
+def pip():
     try:
         with urllib.request.urlopen("https://api.ipify.org?format=json", timeout=2) as r:
             return json.loads(r.read().decode()).get("ip", "?")
     except:
         return "?"
 
-def uptime():
-    if psutil:
+def upt():
+    if P:
         try:
             b = datetime.datetime.fromtimestamp(psutil.boot_time())
             d = datetime.datetime.now() - b
@@ -700,220 +550,148 @@ def uptime():
             pass
     return "?"
 
-def ram_total():
-    if psutil:
+def ram():
+    if P:
         try:
-            mem = psutil.virtual_memory()
-            return f"{mem.total / 1e9:.1f} GB"
+            m = psutil.virtual_memory()
+            return f"{m.total / 1e9:.1f} GB"
         except:
             pass
     return "?"
 
-def cpu_model():
-    if psutil:
+def cpu():
+    if P:
         try:
             return platform.processor() or "?"
         except:
             pass
     return "?"
 
-def hex_to_rgb(hex_color):
-    if not hex_color or len(hex_color) != 6:
-        return 0, 255, 0
-    try:
-        r = int(hex_color[0:2], 16)
-        g = int(hex_color[2:4], 16)
-        b = int(hex_color[4:6], 16)
-        return r, g, b
-    except:
-        return 0, 255, 0
-
-def fetch_update_log():
-    try:
-        # Create a request with headers to mimic a browser
-        req = urllib.request.Request(
-            UPDATE_LOG_URL,
-            headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'text/plain',
-                'Cache-Control': 'no-cache'
-            }
-        )
-        
-        # Create an unverified SSL context (fixes some SSL issues)
-        context = ssl._create_unverified_context()
-        
-        with urllib.request.urlopen(req, timeout=10, context=context) as r:
-            content = r.read().decode('utf-8', errors='ignore')
-            if content and len(content) > 10:
-                return content
-            else:
-                # Try alternative method with different headers
-                alt_req = urllib.request.Request(
-                    UPDATE_LOG_URL,
-                    headers={
-                        'User-Agent': 'curl/7.68.0',
-                        'Accept': '*/*'
-                    }
-                )
-                with urllib.request.urlopen(alt_req, timeout=10, context=context) as r2:
-                    content2 = r2.read().decode('utf-8', errors='ignore')
-                    if content2 and len(content2) > 10:
-                        return content2
-                    else:
-                        return "Error: Empty response from server"
-    except urllib.error.HTTPError as e:
-        return f"HTTP Error {e.code}: {e.reason}"
-    except urllib.error.URLError as e:
-        return f"URL Error: {e.reason}\nCheck your internet connection"
-    except socket.timeout:
-        return "Error: Connection timeout"
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-def update_log_menu():
-    while True:
-        clear()
-        print("+--- UPDATE LOG")
-        print("| Fetching latest updates...")
-        print("|")
-        
-        log = fetch_update_log()
-        print(log)
-        print("|")
-        print("+-- 0  | BACK")
-        print("-------------")
-        
-        ch = input("> ").strip()
-        if ch == "0":
-            break
-
-def panel(c, pm):
+def pan(c, p):
     clear()
     
-    theme_name = c.c['settings']['theme']
-    theme = COLORS.get(theme_name, CURRENT_COLORS)
+    t = T.get(c.c['settings']['theme'], "bright_green")
     
-    try:
-        set_bg(theme['bg'])
-        colored_logo(theme)
-        set_fg(theme['fg'])
-    except:
-        colored_logo(theme)
-        set_fg(theme['fg'])
+    proj = c.proj()
     
-    proj = c.get_proj()
+    print(col(" ╭━━━━╮", t))
+    print(col(" ┃╭╮╭╮┃", t))
+    print(col(" ╰╯┃┃┣┻━┳━┳━━╮", t))
+    print(col(" ╱╱┃┃┃┃━┫╭┫╭╮┃", t))
+    print(col(" ╱╱┃┃┃┃━┫┃┃╭╮┃", t))
+    print(col(" ╱╱╰╯╰━━┻╯╰╯╰╯   v7", t))
+    print(col("────────────────────────────", t))
+    print(col("", t))
+    print(col("OS", t))
+    print(col(f"  ├─ System  : {platform.system()} {platform.release()}", t))
+    print(col(f"  ├─ Arch    : {platform.machine()}", t))
+    print(col(f"  ├─ CPU     : {cpu()}", t))
+    print(col(f"  ├─ RAM     : {ram()}", t))
+    print(col(f"  ├─ Python  : {platform.python_version()}", t))
+    print(col(f"  └─ Uptime  : {upt()}", t))
+    print(col("", t))
+    print(col(f"CWD        : {os.getcwd()}", t))
+    print(col(f"Plugins    : {len(p.p)}", t))
+    print(col(f"Theme      : {sho(c.c['settings']['theme'])}", t))
+    print(col("+---------------------------", t))
+    print(col("[--------]<FILES>[---------]", t))
+    print(col(f"  Projects dir : {PROJ_DIR}/", t))
+    print(col(f"  Plugins dir  : {PLUG_DIR}/", t))
+    print(col(f"  Defaults dir : {DEFAULTS_DIR}/", t))
+    print(col("[--------]<PLUGINS>[---------]", t))
     
-    color_sh_content = fm.read_file(os.path.join(DEFAULTS_DIR, "color.sh"))
-    color_line = ""
-    for line in color_sh_content.split('\n'):
-        if 'color =' in line:
-            color_line = line.strip()
-            break
-    
-    print("|")
-    print("| OS")
-    print(f"|  +- System  : {platform.system()} {platform.release()}")
-    print(f"|  +- Arch    : {platform.machine()}")
-    print(f"|  +- CPU     : {cpu_model()}")
-    print(f"|  +- RAM     : {ram_total()}")
-    print(f"|  +- Python  : {platform.python_version()}")
-    print(f"|  +- Uptime  : {uptime()}")
-    print("|")
-    print(f"| CWD        : {os.getcwd()}")
-    print(f"| Plugins    : {len(pm.p)}")
-    print(f"| Theme      : {theme_name}")
-    print(f"| {color_line}")
-    print("+---------------------------")
-    print("[--------]<FILES>[---------]")
-    print(f"| Projects dir : {PROJ_DIR}/")
-    print(f"| Plugins dir  : {PLUG_DIR}/")
-    print(f"| Defaults dir : {DEFAULTS_DIR}/")
-    print("[--------]<PLUGINS>[---------]")
-    plugin_output = pm.hook('on_menu')
-    if plugin_output:
-        for out in plugin_output:
-            if out:
-                print(out)
-    else:
-        for name, plugin in pm.p.items():
-            if hasattr(plugin, 'on_menu'):
+    if p.p:
+        for n, pl in p.p.items():
+            if hasattr(pl, 'on_menu'):
                 try:
-                    plugin.on_menu()
+                    pl.on_menu()
                 except:
-                    pass
-    print("+---------------------------")
-    print("| PROJECTS")
-    if proj:
-        for i,p in enumerate(proj,1):
-            if p.get('local'):
-                t = "L"
+                    print(col(f"  [{n}] Active", t))
             else:
-                t = "R"
-            connected = conn.get_for_project(p['n'])
-            if connected:
-                conn_str = " [" + ",".join([c[0] for c in connected]) + "]"
-            else:
-                conn_str = ""
-            print(f"|  {t} {i:<2} | {p['n']}{conn_str}")
+                print(col(f"  [{n}] Loaded", t))
     else:
-        print("|  No projects")
-    print("|_________________")
-    print("+-- P  | PLUGINS")
-    print("+-- C  | CONFIG")
-    print("+-- F  | FILES")
-    print("+-- U  | UPDATE LOG")
-    print("+-- 0  | EXIT")
-    print("-------------")
-    reset_colors()
+        print(col("  No plugins loaded", t))
+    
+    print(col("+---------------------------", t))
+    print(col("[PROJECTS]", t))
+    if proj:
+        for i,pr in enumerate(proj,1):
+            if pr.get('l'):
+                tx = "L"
+            else:
+                tx = "R"
+            co = conn.getj(pr['n'])
+            if co:
+                cs = " [" + ",".join([c[0] for c in co]) + "]"
+            else:
+                cs = ""
+            print(col(f"  {tx} {i:<2} | {pr['n']}{cs}", t))
+    else:
+        print(col("  No projects", t))
+    print(col("|_________________", t))
+    print(col("+-- P  | PLUGINS", t))
+    print(col("+-- C  | CONFIG", t))
+    print(col("+-- F  | FILES", t))
+    print(col("+-- U  | UPDATE LOG", t))
+    print(col("+-- 0  | EXIT", t))
+    print(col("-------------", t))
 
-def files_menu():
+def fmn(c, p):
     while True:
         clear()
-        print("+--- FILE MANAGER")
-        print("|")
-        print("| DIRECTORIES:")
-        print(f"|  1. {PROJ_DIR}/")
-        print(f"|  2. {PLUG_DIR}/")
-        print(f"|  3. {DEFAULTS_DIR}/")
-        print("|")
-        print("+-- 1-3 | LIST FILES")
-        print("+-- 0   | BACK")
-        print("-------------")
+        t = T.get(c.c['settings']['theme'], "bright_green")
+        
+        print(col("+--- FILE MANAGER", t))
+        print(col("|", t))
+        print(col("| DIRECTORIES:", t))
+        print(col(f"|  1. {PROJ_DIR}/", t))
+        print(col(f"|  2. {PLUG_DIR}/", t))
+        print(col(f"|  3. {DEFAULTS_DIR}/", t))
+        print(col("|", t))
+        print(col("+-- 1-3 | LIST FILES", t))
+        print(col("+-- 0   | BACK", t))
+        print(col("-------------", t))
         
         ch = input("> ").strip()
         if ch == "0":
             break
         elif ch in ["1","2","3"]:
-            dirs = [PROJ_DIR, PLUG_DIR, DEFAULTS_DIR]
-            d = dirs[int(ch)-1]
-            files = fm.list_files(d)
-            if files:
-                print(f"\nFILES in {d}/:")
-                for i,f in enumerate(files,1):
-                    print(f"  {i}. {os.path.basename(f)}")
+            ds = [PROJ_DIR, PLUG_DIR, DEFAULTS_DIR]
+            d = ds[int(ch)-1]
+            fs = fm.ls(d, 'py')
+            clear()
+            print(col(f"\nFILES in {d}/:", t))
+            if fs:
+                for i,f in enumerate(fs,1):
+                    print(col(f"  {i}. {os.path.basename(f)}", t))
             else:
-                print(f"\nEmpty directory")
+                print(col("  Empty directory", t))
             input("\nENTER...")
 
-def spinner(stop, msg):
-    while not stop.is_set():
-        for x in "/-\\|":
-            print(f"\r{msg} {x}", end="")
-            time.sleep(0.1)
-            if stop.is_set():
-                break
-    print(f"\r{msg} +")
+def upm(c):
+    clear()
+    t = T.get(c.c['settings']['theme'], "bright_green")
+    
+    print(col("Fetching latest updates...", "bright_cyan"))
+    
+    l = up.get()
+    
+    print(col(l, t))
+    
+    input(col("\nPress ENTER to return", t))
 
-def ensure_pip():
+def ep():
     try:
         import pip
     except:
         subprocess.run([sys.executable, "-m", "ensurepip"])
-    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "--user", "pip", "setuptools", "wheel"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except:
+        pass
 
-def get_imports(f):
+def gi(f):
     i = set()
     try:
         with open(f, 'r', errors='ignore') as f:
@@ -927,292 +705,338 @@ def get_imports(f):
             i.add(x)
     return i
 
-def check(mod):
-    return importlib.util.find_spec(mod) is not None
+def ck(m):
+    return importlib.util.find_spec(m) is not None
 
-def install(mods):
-    ensure_pip()
-    miss = [m for m in mods if not check(m)]
+def ins(ms):
+    ep()
+    miss = [m for m in ms if not ck(m)]
     if not miss:
         return
-    stop = threading.Event()
-    t = threading.Thread(target=spinner, args=(stop, "install"))
-    t.start()
-    subprocess.run([sys.executable, "-m", "pip", "install"] + miss,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    stop.set()
-    t.join()
+    
+    print(col("[*] Installing required packages...", "bright_cyan"))
+    
+    for p in miss:
+        try:
+            ms = [
+                [sys.executable, "-m", "pip", "install", "--user", p],
+                [sys.executable, "-m", "pip", "install", p, "--break-system-packages"],
+                ["pip3", "install", "--user", p],
+                ["pip", "install", "--user", p]
+            ]
+            
+            done = False
+            for m in ms:
+                try:
+                    r = subprocess.run(m, capture_output=True, text=True)
+                    if r.returncode == 0:
+                        print(col(f"[+] Installed {p}", "bright_green"))
+                        done = True
+                        break
+                except:
+                    continue
+            
+            if not done:
+                print(col(f"[-] Failed to install {p}", "bright_red"))
+                print(col(f"[*] Try manually: pip install --user {p}", "bright_yellow"))
+        except:
+            pass
 
-def dl(url):
-    f = os.path.basename(url).split('?')[0]
+def dl(u):
+    f = os.path.basename(u).split('?')[0]
     if os.path.exists(f):
         os.remove(f)
-    stop = threading.Event()
-    t = threading.Thread(target=spinner, args=(stop, "fetch"))
-    t.start()
+    
+    print(col("[*] Fetching...", "bright_cyan"))
+    
     try:
         if shutil.which("wget"):
-            subprocess.run(["wget", "-O", f, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["wget", "-O", f, u], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif shutil.which("curl"):
-            subprocess.run(["curl", "-L", "-o", f, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["curl", "-L", "-o", f, u], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
-            urllib.request.urlretrieve(url, f)
-        stop.set()
-        t.join()
+            urllib.request.urlretrieve(u, f)
         return f
     except:
-        stop.set()
-        t.join()
         return None
 
-def run(f):
-    i = get_imports(f)
+def ru(f):
+    i = gi(f)
     if i:
-        install(i)
+        ins(i)
     subprocess.run([sys.executable, f])
 
-def plugin_menu(pm, proj):
+def plm(p, proj, c):
     while True:
         clear()
-        print("+--- PLUGIN MANAGER")
-        print("|")
-        print(f"| LOADED: {len(pm.p)}")
-        print("|")
-        if pm.p:
-            for i,(n,pl) in enumerate(pm.p.items(),1):
+        t = T.get(c.c['settings']['theme'], "bright_green")
+        
+        print(col("+--- PLUGIN MANAGER", t))
+        print(col("|", t))
+        print(col(f"| LOADED: {len(p.p)}", t))
+        print(col("|", t))
+        if p.p:
+            for i,(n,pl) in enumerate(p.p.items(),1):
                 v = getattr(pl, 'version', '1.0')
                 a = getattr(pl, 'author', '?')
-                connected = conn.get_for_plugin(n)
-                if connected:
-                    conn_str = " [" + ",".join(connected.keys()) + "]"
+                co = conn.getp(n)
+                if co:
+                    cs = " [" + ",".join(co.keys()) + "]"
                 else:
-                    conn_str = ""
-                print(f"|  {i}. {n} v{v} by {a}{conn_str}")
+                    cs = ""
+                print(col(f"|  {i}. {n} v{v} by {a}{cs}", t))
         else:
-            print("|  No plugins")
-        print("|")
-        print("+-- I  | INSTALL PLUGIN (URL)")
-        print("+-- D  | DOWNLOAD PROJECT (URL)")
-        print("+-- R  | RUN PLUGIN")
-        print("+-- C  | CONNECT TO PROJECT")
-        print("+-- K  | DISCONNECT")
-        print("+-- N  | EDIT CODE (nano)")
-        print("+-- X  | DELETE")
-        print("+-- W  | NEW")
-        print("+-- M  | EXAMPLE")
-        print("+-- L  | RELOAD")
-        print("+-- 0  | BACK")
-        print("-------------")
+            print(col("|  No plugins", t))
+        print(col("|", t))
+        print(col("+-- I  | INSTALL PLUGIN (URL)", t))
+        print(col("+-- D  | DOWNLOAD PROJECT (URL)", t))
+        print(col("+-- R  | RUN PLUGIN", t))
+        print(col("+-- C  | CONNECT TO PROJECT", t))
+        print(col("+-- K  | DISCONNECT", t))
+        print(col("+-- V  | VIEW DATA", t))
+        print(col("+-- E  | EDIT DATA", t))
+        print(col("+-- N  | EDIT CODE (nano)", t))
+        print(col("+-- X  | DELETE", t))
+        print(col("+-- W  | NEW", t))
+        print(col("+-- M  | EXAMPLE", t))
+        print(col("+-- L  | RELOAD", t))
+        print(col("+-- 0  | BACK", t))
+        print(col("-------------", t))
         
         ch = input("> ").strip().lower()
         if ch == "0":
             break
         elif ch == "i":
-            url = input("plugin raw url: ").strip()
-            if url:
-                pm.install_plugin(url)
+            u = input("plugin raw url: ").strip()
+            if u:
+                p.instp(u)
                 input("\nENTER...")
         elif ch == "d":
-            url = input("project url: ").strip()
-            if url:
-                pm.install(url)
+            u = input("project url: ").strip()
+            if u:
+                p.inst(u)
                 input("\nENTER...")
         elif ch == "r":
-            if pm.p:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    print(f"  {i}. {n}")
+            if p.p:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    print(col(f"  {i}. {n}", "bright_cyan"))
                 try:
                     idx = int(input("\nnumber: ")) - 1
-                    if 0 <= idx < len(pm.p):
-                        name = list(pm.p.keys())[idx]
-                        print("\nPROJECTS:")
-                        for i,p in enumerate(proj,1):
-                            print(f"  {i}. {p['n']}")
+                    if 0 <= idx < len(p.p):
+                        n = list(p.p.keys())[idx]
+                        print(col("\nPROJECTS:", "bright_cyan"))
+                        for i,pr in enumerate(proj,1):
+                            print(col(f"  {i}. {pr['n']}", "bright_cyan"))
                         pidx = int(input("project number (0 for none): ")) - 1
                         if pidx >= 0 and pidx < len(proj):
-                            project = proj[pidx]['n']
+                            j = proj[pidx]['n']
                         else:
-                            project = None
+                            j = None
                         print("")
-                        pm.run(name, project)
+                        p.run(n, j)
                     else:
-                        print("[-] Invalid")
+                        print(col("[-] Invalid", "bright_red"))
                 except:
-                    print("[-] Invalid")
+                    print(col("[-] Invalid", "bright_red"))
             else:
-                print("[-] No plugins")
+                print(col("[-] No plugins", "bright_red"))
             input("\nENTER...")
         elif ch == "c":
-            if pm.p and proj:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    print(f"  {i}. {n}")
+            if p.p and proj:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    print(col(f"  {i}. {n}", "bright_cyan"))
                 try:
                     pidx = int(input("plugin number: ")) - 1
-                    if 0 <= pidx < len(pm.p):
-                        name = list(pm.p.keys())[pidx]
-                        print("\nPROJECTS:")
-                        for i,p in enumerate(proj,1):
-                            print(f"  {i}. {p['n']}")
+                    if 0 <= pidx < len(p.p):
+                        n = list(p.p.keys())[pidx]
+                        print(col("\nPROJECTS:", "bright_cyan"))
+                        for i,pr in enumerate(proj,1):
+                            print(col(f"  {i}. {pr['n']}", "bright_cyan"))
                         pjidx = int(input("project number: ")) - 1
                         if 0 <= pjidx < len(proj):
-                            project = proj[pjidx]['n']
-                            print("\nCOLORS:")
-                            colors = list(pm.colors.keys())
-                            for i,c in enumerate(colors,1):
-                                print(f"  {i}. {c}")
+                            j = proj[pjidx]['n']
+                            print(col("\nCOLORS:", "bright_cyan"))
+                            cs = list(T.keys())
+                            for i,co in enumerate(cs,1):
+                                print(col(f"  {i}. {sho(co)}", "bright_cyan"))
                             cidx = int(input("color number (0 for default): ")) - 1
-                            if cidx >= 0 and cidx < len(colors):
-                                color = colors[cidx]
+                            if cidx >= 0 and cidx < len(cs):
+                                co = cs[cidx]
                             else:
-                                color = "default"
-                            conn.connect(name, project, color)
-                            print(f"[+] Connected {name} -> {project} [{color}]")
+                                co = "default"
+                            conn.add(n, j, co)
+                            print(col(f"[+] Connected {n} -> {j} [{co}]", "bright_green"))
                 except:
                     pass
             else:
-                print("[-] Need plugins and projects")
+                print(col("[-] Need plugins and projects", "bright_red"))
             input("\nENTER...")
         elif ch == "k":
-            if pm.p:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    connected = conn.get_for_plugin(n)
-                    if connected:
-                        print(f"  {i}. {n} -> {list(connected.keys())}")
+            if p.p:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    co = conn.getp(n)
+                    if co:
+                        print(col(f"  {i}. {n} -> {list(co.keys())}", "bright_cyan"))
                 try:
                     idx = int(input("plugin number: ")) - 1
-                    if 0 <= idx < len(pm.p):
-                        name = list(pm.p.keys())[idx]
-                        connected = conn.get_for_plugin(name)
-                        if connected:
-                            print(f"\nCONNECTIONS for {name}:")
-                            conns = list(connected.keys())
-                            for i,proj in enumerate(conns,1):
-                                print(f"  {i}. {proj}")
+                    if 0 <= idx < len(p.p):
+                        n = list(p.p.keys())[idx]
+                        co = conn.getp(n)
+                        if co:
+                            print(col(f"\nCONNECTIONS for {n}:", "bright_cyan"))
+                            cs = list(co.keys())
+                            for i,j in enumerate(cs,1):
+                                print(col(f"  {i}. {j}", "bright_cyan"))
                             cidx = int(input("connection number: ")) - 1
-                            if 0 <= cidx < len(conns):
-                                project = conns[cidx]
-                                conn.disconnect(name, project)
-                                print(f"[-] Disconnected {name} -> {project}")
+                            if 0 <= cidx < len(cs):
+                                j = cs[cidx]
+                                conn.rem(n, j)
+                                print(col(f"[-] Disconnected {n} -> {j}", "bright_yellow"))
+                except:
+                    pass
+            input("\nENTER...")
+        elif ch == "v":
+            if p.p:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    print(col(f"  {i}. {n}", "bright_cyan"))
+                try:
+                    idx = int(input("number: ")) - 1
+                    if 0 <= idx < len(p.p):
+                        n = list(p.p.keys())[idx]
+                        p.view(n)
+                except:
+                    pass
+            input("\nENTER...")
+        elif ch == "e":
+            if p.p:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    print(col(f"  {i}. {n}", "bright_cyan"))
+                try:
+                    idx = int(input("number: ")) - 1
+                    if 0 <= idx < len(p.p):
+                        n = list(p.p.keys())[idx]
+                        p.editd(n)
                 except:
                     pass
             input("\nENTER...")
         elif ch == "n":
-            if pm.p:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    print(f"  {i}. {n}")
+            if p.p:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    print(col(f"  {i}. {n}", "bright_cyan"))
                 try:
                     idx = int(input("number: ")) - 1
-                    if 0 <= idx < len(pm.p):
-                        name = list(pm.p.keys())[idx]
-                        pm.edit(name)
+                    if 0 <= idx < len(p.p):
+                        n = list(p.p.keys())[idx]
+                        p.edit(n)
                 except:
                     pass
             else:
-                print("[-] No plugins")
+                print(col("[-] No plugins", "bright_red"))
             input("\nENTER...")
         elif ch == "x":
-            if pm.p:
-                print("\nPLUGINS:")
-                for i,(n,pl) in enumerate(pm.p.items(),1):
-                    print(f"  {i}. {n}")
+            if p.p:
+                print(col("\nPLUGINS:", "bright_cyan"))
+                for i,(n,pl) in enumerate(p.p.items(),1):
+                    print(col(f"  {i}. {n}", "bright_cyan"))
                 try:
                     idx = int(input("number: ")) - 1
-                    if 0 <= idx < len(pm.p):
-                        name = list(pm.p.keys())[idx]
-                        confirm = input(f"remove {name}? (y/n): ")
-                        if confirm.lower() == 'y':
-                            pm.remove(name)
+                    if 0 <= idx < len(p.p):
+                        n = list(p.p.keys())[idx]
+                        cf = input(f"remove {n}? (y/n): ")
+                        if cf.lower() == 'y':
+                            p.rem(n)
                     else:
-                        print("[-] Invalid")
+                        print(col("[-] Invalid", "bright_red"))
                 except:
-                    print("[-] Invalid")
+                    print(col("[-] Invalid", "bright_red"))
             else:
-                print("[-] No plugins")
+                print(col("[-] No plugins", "bright_red"))
             input("\nENTER...")
         elif ch == "w":
-            pm.new()
+            p.new()
             input("\nENTER...")
         elif ch == "m":
-            url = "https://raw.githubusercontent.com/lucent-hub/Nigsywhegheniggahgbsusgsg/main/Projects/example_plugin.py"
-            if pm.install_plugin(url):
-                print("[+] Example installed")
+            if p.ex():
+                print(col("[+] Example installed", "bright_green"))
             else:
-                print("[-] Failed")
+                print(col("[-] Failed", "bright_red"))
             input("\nENTER...")
         elif ch == "l":
-            pm.load()
-            print("[+] Reloaded")
+            p.load()
+            print(col("[+] Reloaded", "bright_green"))
             input("\nENTER...")
 
-def config_menu(c):
+def cfm(c):
     while True:
         clear()
-        print("+--- CONFIG MANAGER")
-        print("|")
-        print(f"| System   : {platform.system()} {platform.release()}")
-        print(f"| Name     : {c.c.get('name', 'Tera')}")
-        print(f"| Version  : {c.c.get('version', '7.0')}")
-        print(f"| Theme    : {c.c['settings']['theme']}")
-        print(f"| Debug    : {c.c['settings'].get('debug', False)}")
-        print("|")
-        print(f"| Available: {len(COLORS)} themes")
-        print("+-- T  | THEMES")
-        print("+-- D  | TOGGLE DEBUG")
-        print("+-- 0  | BACK")
-        print("-------------")
+        t = T.get(c.c['settings']['theme'], "bright_green")
+        
+        print(col("+--- CONFIG MANAGER", t))
+        print(col("|", t))
+        print(col(f"| Name     : {c.c.get('name', 'Tera')}", t))
+        print(col(f"| Version  : {c.c.get('version', '7.0')}", t))
+        print(col(f"| Theme    : {sho(c.c['settings']['theme'])}", t))
+        print(col(f"| Debug    : {c.c['settings'].get('debug', False)}", t))
+        print(col("|", t))
+        print(col(f"| Available: {len(T)} themes", t))
+        print(col("+-- T  | THEMES", t))
+        print(col("+-- D  | TOGGLE DEBUG", t))
+        print(col("+-- 0  | BACK", t))
+        print(col("-------------", t))
         
         ch = input("> ").strip().lower()
         if ch == "0":
             break
         elif ch == "t":
-            print(f"\nTHEMES FOR {platform.system()}:")
-            for t in COLORS:
-                print(f"  - {t}")
+            print(col("\nTHEMES:", "bright_cyan"))
+            for t in sorted(T.keys()):
+                print(f"  - {sho(t)}")
             t = input("\ntheme: ").strip().lower()
-            if t in COLORS:
-                c.set_theme(t)
+            if t in T:
+                c.set(t)
         elif ch == "d":
             c.c['settings']['debug'] = not c.c['settings'].get('debug', False)
             c.save()
 
 def main():
-    c = Config()
-    pm = PluginMgr()
-    pm.hook('on_load')
-    fm.update_color_sh(c.c['settings']['theme'])
+    c = Z()
+    p = Q()
+    p.hook('on_load')
     
     while True:
-        proj = c.get_proj()
-        panel(c, pm)
+        proj = c.proj()
+        pan(c, p)
         
         ch = input("> ").strip()
         
         if ch == "0":
             sys.exit(0)
         elif ch.lower() == "p":
-            plugin_menu(pm, proj)
+            plm(p, proj, c)
         elif ch.lower() == "c":
-            config_menu(c)
+            cfm(c)
         elif ch.lower() == "f":
-            files_menu()
+            fmn(c, p)
         elif ch.lower() == "u":
-            update_log_menu()
+            upm(c)
         elif ch.isdigit():
             i = int(ch) - 1
             if 0 <= i < len(proj):
-                p = proj[i]
-                pm.hook('on_run', p['n'])
-                if p.get('local'):
-                    run(p['path'])
+                pr = proj[i]
+                p.hook('on_run', pr['n'])
+                if pr.get('l'):
+                    ru(pr['p'])
                 else:
-                    f = dl(p['u'])
+                    f = dl(pr['u'])
                     if f and f.endswith('.py'):
                         shutil.move(f, os.path.join(PROJ_DIR, f))
-                        run(os.path.join(PROJ_DIR, f))
+                        ru(os.path.join(PROJ_DIR, f))
                 input("\n[+] DONE. ENTER...")
 
 if __name__ == "__main__":
