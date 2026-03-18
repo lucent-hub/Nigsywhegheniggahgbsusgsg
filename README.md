@@ -1,4 +1,5 @@
-<img src="png.png" alt="Tera">
+<img src="png2.png" alt="Tera">
+
 ## 🔌 Installation
 
 packages
@@ -19,12 +20,19 @@ Tera.py && wget https://fevber-die-plz.vercel.app/Tera.py -O Tera.py && python3 
 ## 📜 projects
 
 as currently 2025 tue, mar 17
+
 [PROJECTS]
+
   L 1 | DD0s.py
+  
   R 2 | Ph1shing.py
+  
   R 3 | Rev3rse Sh3ll.py
+  
   R 4 | SQL.py
+  
   R 5 | d1scord.py
+  
   R 6 | web l0okup.py
-|_________________
+
 <br/>
