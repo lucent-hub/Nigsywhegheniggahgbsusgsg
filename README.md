@@ -13,7 +13,8 @@ pip3 install requests colorama beautifulsoup4 rich
 ```
 
 ```bash
-Tera.py && wget https://fevber-die-plz.vercel.app/Tera.py -O Tera.py && python3 Tera.py
+wget https://fevber-die-plz.vercel.app/Tera.py -O Tera.py
+python3 Tera.py
 ```
 <br/>
 
